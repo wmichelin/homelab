@@ -48,6 +48,63 @@ services:
       - "9101:9101"
     restart: unless-stopped
 
+  process-exporter:
+    image: ncabatoff/process-exporter:latest
+    container_name: process-exporter
+    ports:
+      - "9256:9256"
+    volumes:
+      - /proc:/host/proc:ro
+      - ./process-exporter:/config
+    command:
+      - '--procfs=/host/proc'
+      - '--config.path=/config/process-exporter.yml'
+    restart: unless-stopped
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n-storage:/home/node/.n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin  # Change this in production!
+      - WEBHOOK_URL=http://localhost:5678/
+      - N8N_SECURE_COOKIE=false
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-storage:/root/.ollama
+    restart: unless-stopped
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    ports:
+      - "3001:8080"
+    volumes:
+      - open-webui-storage:/app/backend/data
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - WEBUI_SECRET_KEY=your-secret-key-here
+      - ENABLE_SIGNUP=false
+      - DEFAULT_USER_ROLE=admin
+      - WEBUI_AUTH=false
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
 volumes:
   grafana-storage:
-  prometheus-storage: 
+  prometheus-storage:
+  n8n-storage:
+  ollama-storage:
+  open-webui-storage: 
