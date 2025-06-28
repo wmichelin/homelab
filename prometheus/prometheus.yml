@@ -13,4 +13,11 @@ scrape_configs:
 
   - job_name: 'network-metrics'
     static_configs:
-      - targets: ['network-exporter:9101'] 
+      - targets: ['network-exporter:9101']
+
+  - job_name: 'fail2ban'
+    static_configs:
+      - targets: ['fail2ban-exporter:9191']
+
+
+ 

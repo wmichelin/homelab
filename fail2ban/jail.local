@@ -1,0 +1,28 @@
+[DEFAULT]
+# Ban hosts for 24 hours
+bantime = 86400
+
+# Check for attacks in last 10 minutes  
+findtime = 600
+
+# Ban after 5 failed attempts
+maxretry = 5
+
+# Use iptables to ban IPs
+banaction = iptables-multiport
+
+[traefik-auth]
+enabled = true
+port = http,https
+filter = traefik-auth
+logpath = /var/log/traefik/access.log
+maxretry = 3
+bantime = 3600
+
+[traefik-botsearch]
+enabled = true
+port = http,https
+filter = traefik-botsearch
+logpath = /var/log/traefik/access.log
+maxretry = 2
+bantime = 86400

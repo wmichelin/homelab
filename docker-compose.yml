@@ -1,50 +1,45 @@
 services:
-  traefik:
-    image: traefik:v3.0
-    container_name: traefik
-    ports:
-      - "80:80"
-      - "443:443"
-      - "8080:8080"  # Traefik dashboard
+  fail2ban:
+    image: crazymax/fail2ban:latest
+    container_name: fail2ban
+    network_mode: "host"
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik:/etc/traefik
-      - traefik-certificates:/certificates
-    command:
-      - --api.dashboard=true
-      - --api.insecure=true
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
-      - --providers.file.directory=/etc/traefik
-      - --providers.file.watch=true
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      - --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
-      - --certificatesresolvers.letsencrypt.acme.storage=/certificates/acme.json
-      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      - ./fail2ban:/data
+      - /var/log:/host/var/log:ro
+      - fail2ban-socket:/var/run/fail2ban
+    environment:
+      - TZ=UTC
+      - F2B_LOG_LEVEL=INFO
     restart: unless-stopped
-    networks:
-      - traefik
+
+  fail2ban-exporter:
+    build: ./fail2ban-exporter
+    container_name: fail2ban-exporter
+    ports:
+      - "9191:9191"
+    volumes:
+      - fail2ban-socket:/var/run/fail2ban:ro
+    depends_on:
+      - fail2ban
+    restart: unless-stopped
+
+
 
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
-    expose:
-      - "3000"
+    ports:
+      - "3000:3000"
     volumes:
       - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin  # Change this in production!
     restart: unless-stopped
-    networks:
-      - traefik
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`${HOMELAB_SUBDOMAIN}.${DOMAIN}`)"
-      - "traefik.http.routers.grafana.entrypoints=websecure"
-      - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
-      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
 
   prometheus:
     image: prom/prometheus:latest
@@ -143,8 +138,5 @@ volumes:
   n8n-storage:
   ollama-storage:
   open-webui-storage:
-  traefik-certificates:
+  fail2ban-socket:
 
-networks:
-  traefik:
-    external: false 
