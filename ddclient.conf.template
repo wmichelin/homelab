@@ -1,0 +1,16 @@
+# ddclient configuration for Namecheap Dynamic DNS
+daemon=300                               # check every 5 minutes
+syslog=yes                              # log via syslog
+mail-failure=root                       # mail failed updates to root
+pid=/var/run/ddclient.pid               # record PID in file
+ssl=yes                                 # use SSL
+
+# Get IP from web service
+use=web, web=dynamicdns.park-your-domain.com/getip
+
+# Namecheap configuration
+protocol=namecheap
+server=dynamicdns.park-your-domain.com
+login=waltermichelin.com
+password=REPLACE_WITH_DDNS_PASSWORD
+REPLACE_WITH_SUBDOMAIN.waltermichelin.com
