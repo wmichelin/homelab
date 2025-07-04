@@ -99,11 +99,15 @@ services:
     volumes:
       - n8n-storage:/home/node/.n8n
     environment:
-      - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=admin
-      - N8N_BASIC_AUTH_PASSWORD=admin  # Change this in production!
-      - WEBHOOK_URL=http://localhost:5678/
+      - N8N_BASIC_AUTH_ACTIVE=false
+      - WEBHOOK_URL=http://raspberrypi.local:5678/
       - N8N_SECURE_COOKIE=false
+      - N8N_EMAIL_MODE=smtp
+      - N8N_SMTP_HOST=smtp.gmail.com
+      - N8N_SMTP_PORT=587
+      - N8N_SMTP_USER=your-email@gmail.com
+      - N8N_SMTP_PASS=your-app-password
+      - N8N_SMTP_SENDER=your-email@gmail.com
     restart: unless-stopped
 
   ollama:
