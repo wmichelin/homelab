@@ -1,33 +1,4 @@
 services:
-  fail2ban:
-    image: crazymax/fail2ban:latest
-    container_name: fail2ban
-    network_mode: "host"
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
-    volumes:
-      - ./fail2ban:/data
-      - /var/log:/host/var/log:ro
-      - fail2ban-socket:/var/run/fail2ban
-    environment:
-      - TZ=UTC
-      - F2B_LOG_LEVEL=INFO
-    restart: unless-stopped
-
-  fail2ban-exporter:
-    build: ./fail2ban-exporter
-    container_name: fail2ban-exporter
-    ports:
-      - "9191:9191"
-    volumes:
-      - fail2ban-socket:/var/run/fail2ban:ro
-    depends_on:
-      - fail2ban
-    restart: unless-stopped
-
-
-
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -142,5 +113,4 @@ volumes:
   n8n-storage:
   ollama-storage:
   open-webui-storage:
-  fail2ban-socket:
 
