@@ -23,7 +23,7 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=365d'
+      - '--storage.tsdb.retention.time=730d'
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
     restart: unless-stopped
@@ -63,55 +63,22 @@ services:
       - '--config.path=/config/process-exporter.yml'
     restart: unless-stopped
 
-  n8n:
-    image: n8nio/n8n:latest
-    container_name: n8n
-    ports:
-      - "5678:5678"
-    volumes:
-      - n8n-storage:/home/node/.n8n
+  hubitat-exporter:
+    image: ghcr.io/budgetsmarthome/hubitat2prom:latest
+    container_name: hubitat-exporter
+    restart: always
     environment:
-      - N8N_BASIC_AUTH_ACTIVE=false
-      - WEBHOOK_URL=http://raspberrypi.local:5678/
-      - N8N_SECURE_COOKIE=false
-      - N8N_EMAIL_MODE=smtp
-      - N8N_SMTP_HOST=smtp.gmail.com
-      - N8N_SMTP_PORT=587
-      - N8N_SMTP_USER=your-email@gmail.com
-      - N8N_SMTP_PASS=your-app-password
-      - N8N_SMTP_SENDER=your-email@gmail.com
-    restart: unless-stopped
-
-  ollama:
-    image: ollama/ollama:latest
-    container_name: ollama
+      # Construct URI using your Hub IP and App ID from Step 1
+      - HE_URI=http://192.168.0.61/apps/api/20/devices
+      - HE_TOKEN=3ce8a822-1e1f-4f9e-bc2a-19c3caee9568
+      # Optional: Define specific metrics to capture
+      - HE_METRICS=battery,temperature,humidity
     ports:
-      - "11434:11434"
-    volumes:
-      - ollama-storage:/root/.ollama
-    restart: unless-stopped
-
-  open-webui:
-    image: ghcr.io/open-webui/open-webui:main
-    container_name: open-webui
-    ports:
-      - "3001:8080"
-    volumes:
-      - open-webui-storage:/app/backend/data
-    environment:
-      - OLLAMA_BASE_URL=http://ollama:11434
-      - WEBUI_SECRET_KEY=your-secret-key-here
-      - ENABLE_SIGNUP=false
-      - DEFAULT_USER_ROLE=admin
-      - WEBUI_AUTH=false
-    depends_on:
-      - ollama
-    restart: unless-stopped
+      - "5000:5000"
 
 volumes:
   grafana-storage:
   prometheus-storage:
-  n8n-storage:
   ollama-storage:
   open-webui-storage:
 

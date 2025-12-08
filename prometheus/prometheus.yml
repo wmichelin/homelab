@@ -15,9 +15,9 @@ scrape_configs:
     static_configs:
       - targets: ['network-exporter:9101']
 
-  - job_name: 'fail2ban'
+  - job_name: 'hubitat-metrics'
     static_configs:
-      - targets: ['fail2ban-exporter:9191']
+      - targets: ['hubitat-exporter:5000']
 
 
  
