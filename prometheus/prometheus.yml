@@ -18,6 +18,3 @@ scrape_configs:
   - job_name: 'hubitat-metrics'
     static_configs:
       - targets: ['hubitat-exporter:5000']
-
-
- 

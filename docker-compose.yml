@@ -64,7 +64,7 @@ services:
     restart: unless-stopped
 
   hubitat-exporter:
-    image: ghcr.io/budgetsmarthome/hubitat2prom:latest
+    image: ghcr.io/wmichelin/hubitat2prom:latest
     container_name: hubitat-exporter
     restart: always
     environment:
@@ -72,7 +72,7 @@ services:
       - HE_URI=http://192.168.0.61/apps/api/20/devices
       - HE_TOKEN=3ce8a822-1e1f-4f9e-bc2a-19c3caee9568
       # Optional: Define specific metrics to capture
-      - HE_METRICS=battery,temperature,humidity
+      - HE_METRICS=battery,temperature,humidity,heatingSetpoint,coolingSetpoint,thermostatOperatingState
     ports:
       - "5000:5000"
 
