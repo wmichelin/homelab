@@ -76,6 +76,13 @@ services:
     ports:
       - "5000:5000"
 
+  pantry:
+    image: ghcr.io/wmichelin/pantry:latest
+    container_name: pantry
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
 volumes:
   grafana-storage:
   prometheus-storage:
