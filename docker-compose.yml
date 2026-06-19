@@ -1,6 +1,6 @@
 services:
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:12.4.2
     container_name: grafana
     ports:
       - "3000:3000"
@@ -8,12 +8,12 @@ services:
       - grafana-storage:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin  # Change this in production!
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
     restart: unless-stopped
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.10.0
     container_name: prometheus
     ports:
       - "9090:9090"
@@ -29,7 +29,7 @@ services:
     restart: unless-stopped
 
   node-exporter:
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:v1.10.2
     container_name: node-exporter
     ports:
       - "9100:9100"
@@ -51,7 +51,7 @@ services:
     restart: unless-stopped
 
   process-exporter:
-    image: ncabatoff/process-exporter:latest
+    image: ncabatoff/process-exporter:v0.8.7
     container_name: process-exporter
     ports:
       - "9256:9256"
@@ -69,8 +69,8 @@ services:
     restart: always
     environment:
       # Construct URI using your Hub IP and App ID from Step 1
-      - HE_URI=http://192.168.0.61/apps/api/20/devices
-      - HE_TOKEN=3ce8a822-1e1f-4f9e-bc2a-19c3caee9568
+      - HE_URI=${HE_URI:-http://192.168.0.61/apps/api/20/devices}
+      - HE_TOKEN=${HE_TOKEN}
       # Optional: Define specific metrics to capture
       - HE_METRICS=battery,temperature,humidity,heatingSetpoint,coolingSetpoint,thermostatOperatingState
     ports:

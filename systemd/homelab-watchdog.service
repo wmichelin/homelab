@@ -1,0 +1,9 @@
+[Unit]
+Description=Homelab watchdog - heal the monitoring stack if Grafana is down
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/wmichelin/homelab
+ExecStart=/home/wmichelin/homelab/systemd/homelab-watchdog.sh

@@ -2,7 +2,7 @@
 
 # Usage: ./deploy-to-pi.sh <pi-username> <pi-ip> [<remote-path>]
 
-set -e
+set -euo pipefail
 
 if [ "$#" -lt 2 ]; then
   echo "Usage: $0 <pi-username> <pi-ip> [<remote-path>]"
@@ -14,12 +14,21 @@ PI_IP=$2
 REMOTE_PATH=${3:-/home/$PI_USER/homelab}
 
 echo "Syncing project to $PI_USER@$PI_IP:$REMOTE_PATH..."
-
 rsync -avz --progress --exclude-from=.rsyncignore ./ "$PI_USER@$PI_IP:$REMOTE_PATH"
 
+# Deploy "fails closed": we pull/build BEFORE touching the running stack, so a
+# failed image pull or build leaves the existing stack up instead of tearing it
+# down first. `up -d` then recreates only the containers whose config/image
+# changed. We never run `compose down` or a system-wide prune (the old script
+# did, which is how a half-finished deploy could leave everything offline).
+echo "Pulling and building images on the Pi..."
+ssh "$PI_USER@$PI_IP" "cd $REMOTE_PATH && docker compose pull && docker compose build"
 
-echo "Stopping, rebuilding, and starting the stack on the Pi..."
-ssh "$PI_USER@$PI_IP" "cd $REMOTE_PATH && docker-compose down --remove-orphans && docker system prune -f && docker-compose pull && docker-compose up -d --build --force-recreate"
+echo "Reconciling the stack..."
+ssh "$PI_USER@$PI_IP" "cd $REMOTE_PATH && docker compose up -d --remove-orphans"
+
+echo "Cleaning up dangling images only..."
+ssh "$PI_USER@$PI_IP" "docker image prune -f"
 
 echo "Deployment to $PI_USER@$PI_IP complete!"
 echo ""
