@@ -785,7 +785,7 @@
           "refId": "A"
         }
       ],
-      "title": "Disk usage by mount",
+      "title": "Disk usage % by mount",
       "type": "bargauge"
     },
     {
@@ -866,6 +866,279 @@
       },
       "fieldConfig": {
         "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Size"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "decbytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Used"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "decbytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Free"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "decbytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Used %"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 1
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "gradient"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 0.75
+                    },
+                    {
+                      "color": "red",
+                      "value": 0.9
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mount"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 220
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "id": 132,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Used %"
+          }
+        ]
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "node_filesystem_size_bytes{job=\"g5-node\",fstype!~\"tmpfs|overlay\",mountpoint=~\"/|/mnt/storage(/.*)?|/mnt/tm/.*|/mnt/disks/.*\"}",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "Size",
+          "refId": "Size"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "node_filesystem_size_bytes{job=\"g5-node\",fstype!~\"tmpfs|overlay\",mountpoint=~\"/|/mnt/storage(/.*)?|/mnt/tm/.*|/mnt/disks/.*\"} - node_filesystem_avail_bytes{job=\"g5-node\",fstype!~\"tmpfs|overlay\",mountpoint=~\"/|/mnt/storage(/.*)?|/mnt/tm/.*|/mnt/disks/.*\"}",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "Used",
+          "refId": "Used"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "node_filesystem_avail_bytes{job=\"g5-node\",fstype!~\"tmpfs|overlay\",mountpoint=~\"/|/mnt/storage(/.*)?|/mnt/tm/.*|/mnt/disks/.*\"}",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "Free",
+          "refId": "Free"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "1 - (node_filesystem_avail_bytes{job=\"g5-node\",fstype!~\"tmpfs|overlay\",mountpoint=~\"/|/mnt/storage(/.*)?|/mnt/tm/.*|/mnt/disks/.*\"} / node_filesystem_size_bytes{job=\"g5-node\",fstype!~\"tmpfs|overlay\",mountpoint=~\"/|/mnt/storage(/.*)?|/mnt/tm/.*|/mnt/disks/.*\"})",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "Used %",
+          "refId": "Pct"
+        }
+      ],
+      "title": "Disk space by mount",
+      "transformations": [
+        {
+          "id": "seriesToColumns",
+          "options": {
+            "byField": "mountpoint"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Time 1": true,
+              "Time 2": true,
+              "Time 3": true,
+              "Time 4": true,
+              "__name__": true,
+              "__name__ 1": true,
+              "__name__ 2": true,
+              "__name__ 3": true,
+              "__name__ 4": true,
+              "job": true,
+              "job 1": true,
+              "job 2": true,
+              "job 3": true,
+              "job 4": true,
+              "instance": true,
+              "instance 1": true,
+              "instance 2": true,
+              "instance 3": true,
+              "instance 4": true,
+              "host": true,
+              "host 1": true,
+              "host 2": true,
+              "host 3": true,
+              "host 4": true,
+              "fstype": true,
+              "fstype 1": true,
+              "fstype 2": true,
+              "fstype 3": true,
+              "fstype 4": true,
+              "device": true,
+              "device 1": true,
+              "device 2": true,
+              "device 3": true,
+              "device 4": true,
+              "device_error": true,
+              "device_error 1": true,
+              "device_error 2": true,
+              "device_error 3": true,
+              "device_error 4": true
+            },
+            "indexByName": {},
+            "renameByName": {
+              "mountpoint": "Mount",
+              "Value #Size": "Size",
+              "Value #Used": "Used",
+              "Value #Free": "Free",
+              "Value #Pct": "Used %"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
           "mappings": [
             {
               "options": {
@@ -901,7 +1174,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 26
+        "y": 35
       },
       "id": 115,
       "options": {
@@ -975,7 +1248,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 26
+        "y": 35
       },
       "id": 116,
       "options": {
@@ -1049,7 +1322,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 26
+        "y": 35
       },
       "id": 117,
       "options": {
@@ -1109,7 +1382,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 26
+        "y": 35
       },
       "id": 118,
       "options": {
@@ -1164,7 +1437,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 26
+        "y": 35
       },
       "id": 119,
       "options": {
@@ -1208,7 +1481,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 39
       },
       "id": 120,
       "title": "G5 \u2014 Containers",
@@ -1240,7 +1513,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 31
+        "y": 40
       },
       "id": 121,
       "options": {
@@ -1294,7 +1567,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 31
+        "y": 40
       },
       "id": 122,
       "options": {
@@ -1368,7 +1641,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 48
       },
       "id": 123,
       "options": {
@@ -1412,7 +1685,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 45
+        "y": 54
       },
       "id": 131,
       "title": "Raspberry Pi",
@@ -1480,7 +1753,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 46
+        "y": 55
       },
       "id": 124,
       "options": {
@@ -1561,7 +1834,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 46
+        "y": 55
       },
       "id": 125,
       "options": {
@@ -1664,7 +1937,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 54
+        "y": 63
       },
       "id": 126,
       "options": {
@@ -1764,7 +2037,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 54
+        "y": 63
       },
       "id": 127,
       "options": {
@@ -1864,7 +2137,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 62
+        "y": 71
       },
       "id": 128,
       "options": {
@@ -1958,7 +2231,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 70
+        "y": 79
       },
       "id": 129,
       "options": {
@@ -2065,7 +2338,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 78
+        "y": 87
       },
       "id": 130,
       "options": {
