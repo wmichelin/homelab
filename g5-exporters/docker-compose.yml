@@ -36,6 +36,17 @@ services:
       - /dev:/dev
       - /run/udev:/run/udev:ro
 
-  # cAdvisor cannot resolve Docker 29 containerd snapshotter layers on this host.
-  # Per-container CPU/memory comes from scripts/docker-stats-metrics.sh (textfile).
-  # Keep a lightweight process list via node-exporter; media liveness via blackbox.
+  # Writes docker_* textfile metrics. Uses the docker socket so it works even
+  # when systemd --user timers lack the docker supplementary group.
+  docker-stats-exporter:
+    image: python:3.12-alpine
+    container_name: docker-stats-exporter
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./textfile:/textfile
+      - ./scripts/docker_stats_exporter.py:/app/docker_stats_exporter.py:ro
+    environment:
+      - TEXTFILE_DIR=/textfile
+      - SCRAPE_INTERVAL=30
+    command: ["python", "/app/docker_stats_exporter.py"]

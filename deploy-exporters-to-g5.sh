@@ -31,7 +31,10 @@ cp "$REMOTE_PATH/systemd-user/"*.timer "$HOME/.config/systemd/user/"
 
 systemctl --user daemon-reload
 systemctl --user enable --now snapraid-metrics.timer
-systemctl --user enable --now docker-stats-metrics.timer
+# Prefer the compose-based docker-stats-exporter (has docker.sock access).
+# Disable the host timer so it cannot overwrite metrics with empty files.
+systemctl --user disable --now docker-stats-metrics.timer 2>/dev/null || true
+systemctl --user stop docker-stats-metrics.service 2>/dev/null || true
 # Linger so user timers keep running without an interactive login
 loginctl enable-linger "$USER" 2>/dev/null || true
 
@@ -43,14 +46,12 @@ docker rm -f cadvisor 2>/dev/null || true
 docker compose pull
 docker compose up -d --remove-orphans
 
-TEXTFILE_DIR="$REMOTE_PATH/textfile" "$REMOTE_PATH/scripts/docker-stats-metrics.sh" || true
-
 echo "Waiting for exporters..."
 sleep 8
 curl -sf --max-time 5 http://127.0.0.1:9100/metrics >/dev/null && echo "node-exporter OK" || echo "node-exporter NOT READY"
 curl -sf --max-time 5 http://127.0.0.1:9633/metrics >/dev/null && echo "smartctl-exporter OK" || echo "smartctl-exporter NOT READY"
-
-grep -E '^snapraid_healthy|^snapraid_sync_success|^docker_container_running' "$REMOTE_PATH/textfile/"*.prom 2>/dev/null | head -20 || true
+sleep 5
+grep -E '^snapraid_healthy|^snapraid_sync_success|^docker_container_running|^docker_stats_ok' "$REMOTE_PATH/textfile/"*.prom 2>/dev/null | head -30 || true
 curl -sf --max-time 5 http://127.0.0.1:9633/metrics | grep -E '^smartctl_device_smart_status' | head -10 || true
 REMOTE
 
@@ -58,3 +59,4 @@ echo ""
 echo "G5 exporters deployed."
 echo "  node-exporter:      http://${G5_HOST}:9100/metrics"
 echo "  smartctl-exporter:  http://${G5_HOST}:9633/metrics"
+echo "  docker-stats:       textfile via docker-stats-exporter container"

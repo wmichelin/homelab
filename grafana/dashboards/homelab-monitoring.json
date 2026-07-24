@@ -1231,7 +1231,8 @@
               "mode": "none"
             }
           },
-          "unit": "percent"
+          "unit": "percent",
+          "noValue": "n/a"
         },
         "overrides": []
       },
@@ -1245,7 +1246,8 @@
       "options": {
         "legend": {
           "calcs": [
-            "mean"
+            "mean",
+            "lastNotNull"
           ],
           "displayMode": "table",
           "placement": "bottom",
@@ -1283,7 +1285,8 @@
             "lineWidth": 1,
             "showPoints": "never"
           },
-          "unit": "bytes"
+          "unit": "bytes",
+          "noValue": "n/a"
         },
         "overrides": []
       },
@@ -1329,33 +1332,56 @@
       },
       "fieldConfig": {
         "defaults": {
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "lineWidth": 2,
-            "showPoints": "never"
-          }
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "text": "DOWN"
+                },
+                "1": {
+                  "color": "green",
+                  "text": "UP"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "DOWN"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 5,
         "w": 24,
         "x": 0,
         "y": 39
       },
       "id": 123,
       "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
         },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
+        "textMode": "value_and_name"
       },
       "targets": [
         {
@@ -1363,13 +1389,22 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "docker_container_running{job=\"g5-node\",name=~\"jellyfin|radarr|lidarr|qbittorrent|prowlarr|node-exporter|smartctl-exporter\"}",
-          "legendFormat": "{{name}}",
+          "expr": "probe_success{job=\"blackbox-http\", host=\"g5\", service=~\".+\"}",
+          "legendFormat": "{{service}}",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "docker_stats_ok{job=\"g5-node\"}",
+          "legendFormat": "docker-stats collector",
+          "refId": "B"
         }
       ],
-      "title": "Media containers running",
-      "type": "timeseries"
+      "title": "Media services",
+      "type": "stat"
     },
     {
       "collapsed": false,

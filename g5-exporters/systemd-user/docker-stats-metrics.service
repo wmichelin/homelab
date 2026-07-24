@@ -3,5 +3,8 @@ Description=Emit Docker stats Prometheus textfile metrics
 
 [Service]
 Type=oneshot
-ExecStart=%h/homelab-exporters/scripts/docker-stats-metrics.sh
+# Re-exec under the docker group (systemd --user drops supplementary groups).
+ExecStart=/usr/bin/sg docker -c '%h/homelab-exporters/scripts/docker-stats-metrics.sh --as-docker'
 Environment=TEXTFILE_DIR=%h/homelab-exporters/textfile
+Environment=DOCKER_BIN=/usr/bin/docker
+Nice=10

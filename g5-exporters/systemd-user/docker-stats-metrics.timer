@@ -2,10 +2,11 @@
 Description=Docker stats metrics every minute
 
 [Timer]
-OnBootSec=30s
+OnBootSec=15s
 OnUnitActiveSec=60s
-AccuracySec=10s
+AccuracySec=5s
 Persistent=true
+Unit=docker-stats-metrics.service
 
 [Install]
 WantedBy=timers.target
