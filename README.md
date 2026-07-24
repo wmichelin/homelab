@@ -14,7 +14,7 @@ Deploy exporters to G5 (node-exporter, smartctl-exporter, SnapRAID + Docker text
 
 ## Access
 
-- Grafana: http://raspberrypi.local:3000 (Homelab → **G5 Server**)
+- Grafana: http://raspberrypi.local:3000 (Homelab → **Homelab Monitoring**)
 - Prometheus targets: http://raspberrypi.local:9090/targets
 
 ## G5 notes
