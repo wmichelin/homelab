@@ -6,15 +6,127 @@ scrape_configs:
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
+        labels:
+          host: 'pi'
 
   - job_name: 'node-exporter'
     static_configs:
       - targets: ['node-exporter:9100']
+        labels:
+          host: 'pi'
 
   - job_name: 'network-metrics'
     static_configs:
       - targets: ['network-exporter:9101']
+        labels:
+          host: 'pi'
 
   - job_name: 'hubitat-metrics'
     static_configs:
       - targets: ['hubitat-exporter:5000']
+        labels:
+          host: 'pi'
+
+  - job_name: 'process-exporter'
+    static_configs:
+      - targets: ['process-exporter:9256']
+        labels:
+          host: 'pi'
+
+  - job_name: 'g5-node'
+    static_configs:
+      - targets: ['192.168.0.54:9100']
+        labels:
+          host: 'g5'
+
+  - job_name: 'g5-smart'
+    static_configs:
+      - targets: ['192.168.0.54:9633']
+        labels:
+          host: 'g5'
+
+  - job_name: 'blackbox-icmp'
+    metrics_path: /probe
+    params:
+      module: [icmp]
+    static_configs:
+      - targets:
+          - 192.168.0.54
+        labels:
+          host: 'g5'
+          probe: 'icmp'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  - job_name: 'blackbox-tcp'
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    static_configs:
+      - targets:
+          - 192.168.0.54:22
+        labels:
+          host: 'g5'
+          probe: 'tcp'
+          service: 'SSH'
+      - targets:
+          - 192.168.0.54:445
+        labels:
+          host: 'g5'
+          probe: 'tcp'
+          service: 'Samba'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  - job_name: 'blackbox-http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://192.168.0.54:8096/
+        labels:
+          host: 'g5'
+          probe: 'http'
+          service: 'Jellyfin'
+      - targets:
+          - http://192.168.0.54:7878/
+        labels:
+          host: 'g5'
+          probe: 'http'
+          service: 'Radarr'
+      - targets:
+          - http://192.168.0.54:8686/
+        labels:
+          host: 'g5'
+          probe: 'http'
+          service: 'Lidarr'
+      - targets:
+          - http://192.168.0.54:8080/
+        labels:
+          host: 'g5'
+          probe: 'http'
+          service: 'qBittorrent'
+      - targets:
+          - http://192.168.0.54:9696/
+        labels:
+          host: 'g5'
+          probe: 'http'
+          service: 'Prowlarr'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
