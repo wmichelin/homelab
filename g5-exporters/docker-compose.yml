@@ -50,3 +50,21 @@ services:
       - TEXTFILE_DIR=/textfile
       - SCRAPE_INTERVAL=30
     command: ["python", "/app/docker_stats_exporter.py"]
+
+  # Host NIC byte counters via sysfs. node-exporter's netdev collector uses
+  # netlink (container netns), so it only sees eth0 unless we use host
+  # networking — which breaks LAN scrapes behind ProtonVPN.
+  host-netdev-exporter:
+    image: python:3.12-alpine
+    container_name: host-netdev-exporter
+    restart: unless-stopped
+    volumes:
+      - /sys:/host/sys:ro
+      - ./textfile:/textfile
+      - ./scripts/host_netdev_exporter.py:/app/host_netdev_exporter.py:ro
+    environment:
+      - TEXTFILE_DIR=/textfile
+      - SYSFS=/host/sys
+      - DEVICES=enp3s0,proton0
+      - SCRAPE_INTERVAL=15
+    command: ["python", "/app/host_netdev_exporter.py"]
