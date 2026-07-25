@@ -55,6 +55,11 @@ scrape_configs:
         labels:
           host: 'g5'
           probe: 'icmp'
+      - targets:
+          - 192.168.0.61
+        labels:
+          host: 'hubitat'
+          probe: 'icmp'
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
@@ -135,6 +140,12 @@ scrape_configs:
           host: 'g5'
           probe: 'http'
           service: 'Immich'
+      - targets:
+          - http://192.168.0.61/
+        labels:
+          host: 'hubitat'
+          probe: 'http'
+          service: 'Hubitat'
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target

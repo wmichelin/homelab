@@ -1662,9 +1662,18 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "probe_success{job=\"blackbox-http\", host=\"g5\", service=~\".+\"}",
+          "expr": "probe_success{job=\"blackbox-http\", host=~\"g5|hubitat\", service=~\".+\"}",
           "legendFormat": "{{service}}",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "probe_success{job=\"blackbox-icmp\", host=\"hubitat\"}",
+          "legendFormat": "Hubitat ping",
+          "refId": "C"
         },
         {
           "datasource": {
@@ -1676,7 +1685,7 @@
           "refId": "B"
         }
       ],
-      "title": "Media services",
+      "title": "LAN services",
       "type": "stat"
     },
     {

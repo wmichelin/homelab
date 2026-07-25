@@ -13,6 +13,7 @@ Pretty names for G5 apps without fighting mDNS (`.local`).
 | http://prowlarr.g5.lan | `:9696` |
 | http://qbittorrent.g5.lan | `:8080` |
 | http://grafana.g5.lan | Pi `:3000` (proxied via G5 Caddy → `192.168.0.104`) |
+| http://hubitat.g5.lan | Hubitat hub (proxied via G5 Caddy → `192.168.0.61`) |
 
 Direct `http://g5.local:<port>` URLs still work (Prometheus/blackbox keep using ports). `http://pi:3000` still reaches Grafana too.
 

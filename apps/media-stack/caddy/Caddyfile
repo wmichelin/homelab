@@ -48,3 +48,8 @@ http://grafana.g5.lan {
 	# Grafana runs on the Pi; DNS still lands on G5, then we proxy across the LAN.
 	reverse_proxy 192.168.0.104:3000
 }
+
+http://hubitat.g5.lan {
+	# Hubitat Elevation hub (separate LAN box).
+	reverse_proxy 192.168.0.61:80
+}
