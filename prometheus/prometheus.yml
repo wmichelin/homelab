@@ -123,6 +123,12 @@ scrape_configs:
           host: 'g5'
           probe: 'http'
           service: 'Prowlarr'
+      - targets:
+          - http://192.168.0.54:2283/api/server/ping
+        labels:
+          host: 'g5'
+          probe: 'http'
+          service: 'Immich'
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
