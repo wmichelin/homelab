@@ -40,7 +40,7 @@ cp config.example.env config.env
 
 ## Run
 
-Always run from **Terminal.app** (Full Disk Access).
+Always run from **Terminal.app** (Full Disk Access). For the scheduled LaunchAgent, grant Full Disk Access to `/bin/bash` (and `osxphotos` if needed).
 
 ### Fresh export
 
@@ -49,6 +49,24 @@ Always run from **Terminal.app** (Full Disk Access).
 ```
 
 Safe to interrupt and re-run: pass 1 uses `--update` + an export DB; pass 2 skips unchanged Live movies via digest state.
+
+### Periodic export (LaunchAgent)
+
+Install a user LaunchAgent that runs daily at **02:00** local time. Skips cleanly if `$PHOTOS_EXPORT_ROOT` is not mounted.
+
+```bash
+./install-launchagent.sh              # install / refresh
+./install-launchagent.sh --run-now    # install and kick once
+HOUR=6 MINUTE=30 ./install-launchagent.sh   # custom daily time
+./install-launchagent.sh --uninstall
+```
+
+Logs: `~/Library/Logs/homelab/apple-photos-export.log` (and `.err.log`).
+
+```bash
+launchctl print "gui/$(id -u)/com.homelab.apple-photos-export"
+tail -f ~/Library/Logs/homelab/apple-photos-export.log
+```
 
 ### One-time: split already-exported Live movies
 
@@ -76,6 +94,8 @@ Optional: `--verbose`, `--json report.json`, `--limit-examples 30`.
 | Script | Role |
 |--------|------|
 | `export-photos.sh` | Pass 1: osxphotos `--skip-live` → Photos; Pass 2: Live `.mov` → Live Photos |
+| `run-scheduled.sh` | launchd entry: PATH + skip if export root offline |
+| `install-launchagent.sh` | Install / uninstall `com.homelab.apple-photos-export` |
 | `export-live-movies.py` | Copy Live Photo companion movies only |
 | `migrate-live-photos.sh` | Move paired `.mov` out of an existing Photos tree |
 | `check-integrity.py` | Library vs export DB/files report |

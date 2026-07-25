@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Template — install with ./install-launchagent.sh (substitutes absolute paths).
+  Default schedule: daily at 02:00 local time.
+-->
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.homelab.apple-photos-export</string>
+
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/bash</string>
+		<string>__RUN_SCHEDULED__</string>
+	</array>
+
+	<key>WorkingDirectory</key>
+	<string>__PKG_ROOT__</string>
+
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Hour</key>
+		<integer>2</integer>
+		<key>Minute</key>
+		<integer>0</integer>
+	</dict>
+
+	<key>StandardOutPath</key>
+	<string>__LOG_DIR__/apple-photos-export.log</string>
+	<key>StandardErrorPath</key>
+	<string>__LOG_DIR__/apple-photos-export.err.log</string>
+
+	<key>ProcessType</key>
+	<string>Background</string>
+	<key>Nice</key>
+	<integer>10</integer>
+	<key>LowPriorityIO</key>
+	<true/>
+
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>PATH</key>
+		<string>__HOME__/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+		<key>HOME</key>
+		<string>__HOME__</string>
+	</dict>
+</dict>
+</plist>
