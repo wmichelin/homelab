@@ -6,6 +6,9 @@ services:
     container_name: node-exporter
     restart: unless-stopped
     pid: host
+    # systemd collector needs D-Bus; Ubuntu AppArmor blocks it inside Docker otherwise
+    security_opt:
+      - apparmor:unconfined
     ports:
       - "9100:9100"
     volumes:
