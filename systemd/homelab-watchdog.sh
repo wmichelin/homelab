@@ -11,7 +11,7 @@
 
 set -euo pipefail
 
-COMPOSE_DIR="/home/wmichelin/homelab"
+COMPOSE_DIR="${HOMELAB_ROOT:-/home/wmichelin/homelab}"
 HEALTH_URL="http://localhost:3000/api/health"
 
 code=$(curl -s -o /dev/null -m 10 -w "%{http_code}" "$HEALTH_URL" || echo "000")

@@ -36,7 +36,8 @@ docker_cmd() {
 
 read_password() {
   local pw=""
-  if [[ -f "${SECRETS_FILE}" ]]; then
+  # Prefer WEBUI_PASSWORD; QBITTORRENT_WEBUI_PASSWORD is a legacy alias.
+if [[ -f "${SECRETS_FILE}" ]]; then
     pw="$(envfile_get "${SECRETS_FILE}" WEBUI_PASSWORD 2>/dev/null || true)"
     [[ -n "${pw}" ]] || pw="$(envfile_get "${SECRETS_FILE}" QBITTORRENT_WEBUI_PASSWORD 2>/dev/null || true)"
   fi

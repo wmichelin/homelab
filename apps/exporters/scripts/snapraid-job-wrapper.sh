@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-TEXTFILE_DIR="${TEXTFILE_DIR:-/var/lib/node_exporter/textfile_collector}"
+TEXTFILE_DIR="${TEXTFILE_DIR:-/home/wmichelin/code/homelab/apps/exporters/textfile}"
 JOB="${1:?usage: snapraid-job-wrapper.sh <sync|scrub> [snapraid args...]}"
 shift
 

@@ -1,7 +1,0 @@
-[Unit]
-Description=Emit SnapRAID Prometheus textfile metrics
-
-[Service]
-Type=oneshot
-ExecStart=%h/homelab-exporters/scripts/snapraid-metrics.sh
-Environment=TEXTFILE_DIR=%h/homelab-exporters/textfile

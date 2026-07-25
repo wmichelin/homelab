@@ -115,6 +115,7 @@ Warning: with 6 data disks, SnapRAID recommends 2 parity levels; we run **1** (s
 
 ## Related docs
 
-- RDP / remote desktop: `~/.config/lan-remote-access.md`
-- Follow-ups: `~/.config/lan-unraid-like-followups.md`
-- Plan: `~/.cursor/plans/mergerfs SnapRAID storage-57f49d67.plan.md`
+- RDP / remote desktop: [`docs/lan-remote-access.md`](lan-remote-access.md)
+- Follow-ups: [`docs/lan-unraid-like-followups.md`](lan-unraid-like-followups.md)
+- Inventory: [`docs/inventory.md`](inventory.md)
+- Secrets: `secrets/homelab.env` (from `secrets/homelab.env.example`)

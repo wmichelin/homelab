@@ -29,9 +29,10 @@ if [[ ! -f "$(homelab_secrets_file)" ]]; then
   exit 1
 fi
 
-"${ROOT}/scripts/materialize-env.sh" >/dev/null
+"${ROOT}/scripts/materialize-env.sh" --target pi >/dev/null
 
 echo "Syncing monitoring stack to ${PI_USER}@${PI_HOST}:${REMOTE_PATH}..."
+set +e
 rsync -avz --delete --progress \
   --exclude-from="${ROOT}/.rsyncignore" \
   --exclude 'apps/' \
@@ -40,23 +41,56 @@ rsync -avz --delete --progress \
   --exclude 'scripts/' \
   --exclude 'media-stack' \
   --exclude 'immich' \
-  --exclude 'g5-exporters/' \
   --exclude 'apple-photos-export/' \
   --exclude 'secrets/' \
+  --exclude 'fail2ban/' \
+  --exclude 'fail2ban-exporter/' \
+  --exclude 'traefik/' \
+  --exclude 'hubitat-exporter/' \
+  --exclude 'g5-exporters/' \
   "${ROOT}/" "${PI_USER}@${PI_HOST}:${REMOTE_PATH}/"
+rsync_rc=$?
+set -e
+# 23 = partial transfer (e.g. root-owned leftover dirs we cannot delete)
+if [[ "$rsync_rc" -ne 0 && "$rsync_rc" -ne 23 ]]; then
+  exit "$rsync_rc"
+fi
+if [[ "$rsync_rc" -eq 23 ]]; then
+  echo "Warning: rsync reported partial transfer (code 23); continuing."
+fi
 
-echo "Pushing secrets + materialized .env..."
-ssh "${PI_USER}@${PI_HOST}" "mkdir -p '${REMOTE_PATH}/secrets' && chmod 700 '${REMOTE_PATH}/secrets'"
-scp -q "$(homelab_secrets_file)" "${PI_USER}@${PI_HOST}:${REMOTE_PATH}/secrets/homelab.env"
+echo "Pushing Pi-scoped .env (monitoring keys only)..."
+ssh "${PI_USER}@${PI_HOST}" "mkdir -p '${REMOTE_PATH}'"
 scp -q "${ROOT}/.env" "${PI_USER}@${PI_HOST}:${REMOTE_PATH}/.env"
-ssh "${PI_USER}@${PI_HOST}" "chmod 600 '${REMOTE_PATH}/secrets/homelab.env' '${REMOTE_PATH}/.env'"
+ssh "${PI_USER}@${PI_HOST}" "chmod 600 '${REMOTE_PATH}/.env'"
 
-# Deploy fails closed: pull/build before reconciling running containers.
+# Deploy fails closed for build, but tolerate arch-incompatible pulls (e.g. pantry on arm64).
 echo "Pulling and building images on the Pi..."
-ssh "${PI_USER}@${PI_HOST}" "cd '${REMOTE_PATH}' && docker compose pull && docker compose build"
+ssh "${PI_USER}@${PI_HOST}" "cd '${REMOTE_PATH}' && docker compose pull --ignore-pull-failures && docker compose build"
 
 echo "Reconciling the stack..."
 ssh "${PI_USER}@${PI_HOST}" "cd '${REMOTE_PATH}' && docker compose up -d --remove-orphans"
+
+echo "Installing systemd units (stack + watchdog)..."
+ssh "${PI_USER}@${PI_HOST}" bash -s -- "$REMOTE_PATH" <<'REMOTE'
+set -euo pipefail
+REMOTE_PATH=$1
+UNIT_DIR="${REMOTE_PATH}/systemd"
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT
+
+for unit in homelab-stack.service homelab-watchdog.service homelab-watchdog.timer; do
+  sed "s|__HOMELAB_ROOT__|${REMOTE_PATH}|g" "${UNIT_DIR}/${unit}" > "${TMP}/${unit}"
+done
+chmod +x "${REMOTE_PATH}/systemd/homelab-watchdog.sh"
+
+sudo cp "${TMP}/homelab-stack.service" /etc/systemd/system/homelab-stack.service
+sudo cp "${TMP}/homelab-watchdog.service" /etc/systemd/system/homelab-watchdog.service
+sudo cp "${TMP}/homelab-watchdog.timer" /etc/systemd/system/homelab-watchdog.timer
+sudo systemctl daemon-reload
+sudo systemctl enable --now homelab-stack.service
+sudo systemctl enable --now homelab-watchdog.timer
+REMOTE
 
 echo "Cleaning up dangling images only..."
 ssh "${PI_USER}@${PI_HOST}" "docker image prune -f"

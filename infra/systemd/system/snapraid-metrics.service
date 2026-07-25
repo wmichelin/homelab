@@ -4,5 +4,6 @@ After=local-fs.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/snapraid-metrics.sh
+Environment=TEXTFILE_DIR=/home/wmichelin/code/homelab/apps/exporters/textfile
+ExecStart=/home/wmichelin/code/homelab/apps/exporters/scripts/snapraid-metrics.sh
 Nice=10

@@ -2,7 +2,11 @@
 # Backup homelab config/docs/secrets (NOT the media pool) for offsite copy.
 set -euo pipefail
 
-ROOT="${HOME}/code/homelab"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/envfile.sh
+source "${SCRIPT_DIR}/lib/envfile.sh"
+
+ROOT="$(homelab_root)"
 OUT_DIR="${ROOT}/backups"
 STAMP=$(date +%Y%m%d-%H%M%S)
 NAME="g5-homelab-${STAMP}"
@@ -26,7 +30,6 @@ cp -a "$ROOT/apps/media-stack/docker-compose.yml" "$STAGE/$NAME/apps/media-stack
 cp -a "$ROOT/apps/immich/docker-compose.yml" "$ROOT/apps/immich/"hwaccel*.yml \
   "$ROOT/apps/immich/enable-nvidia.sh" "$STAGE/$NAME/apps/immich/" 2>/dev/null || true
 cp -a "$ROOT/apps/exporters/docker-compose.yml" "$ROOT/apps/exporters/scripts" \
-  "$ROOT/apps/exporters/systemd" "$ROOT/apps/exporters/systemd-user" \
   "$STAGE/$NAME/apps/exporters/" 2>/dev/null || true
 
 # App configs (Radarr/Jellyfin/etc) — needed to restore stack settings

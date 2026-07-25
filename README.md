@@ -4,18 +4,18 @@ Monorepo for home infrastructure: Raspberry Pi monitoring, G5 storage/media stac
 
 **Operate from this Mac.** Remotes are rsync deploy targets — they do not need a git checkout.
 
-## Secrets
+See [`docs/inventory.md`](docs/inventory.md) for host → path → unit mapping.
 
-Single source of truth (gitignored):
+## Secrets
 
 ```bash
 cp secrets/homelab.env.example secrets/homelab.env
 chmod 600 secrets/homelab.env
 # edit secrets/homelab.env
-./scripts/materialize-env.sh   # writes per-app .env files Docker actually reads
+./scripts/materialize-env.sh   # or --target pi|g5
 ```
 
-Committed template: `secrets/homelab.env.example`. Never commit `secrets/homelab.env` or materialized `.env` files.
+Never commit `secrets/homelab.env` or materialized `.env` files.
 
 ## Layout
 
@@ -24,32 +24,23 @@ Committed template: `secrets/homelab.env.example`. Never commit `secrets/homelab
 | `apps/media-stack/` | Jellyfin, Radarr, Lidarr, qBittorrent, Prowlarr (G5) |
 | `apps/immich/` | Immich + ML / CUDA (G5) |
 | `apps/exporters/` | node-exporter, SMART, docker/netdev textfile metrics (G5) |
-| `infra/` | storage snapshots + systemd unit files |
-| `scripts/` | backups, Proton→qBit port sync, env materialize, unit installer |
+| `infra/systemd/` | G5 system + user unit files (sole unit source) |
+| `infra/storage/` | fstab/SnapRAID/Samba snapshots + archived setup scripts |
+| `scripts/` | deploys helpers, backups, Proton→qBit, materialize-env |
 | `secrets/homelab.env` | unified secrets (local only) |
-| `docker-compose.yml`, `grafana/`, `prometheus/`, … | Pi monitoring stack |
+| `docker-compose.yml`, `grafana/`, `prometheus/`, `systemd/` | Pi monitoring stack |
 | `apple-photos-export/` | Mac Photos → SnapRAID export tooling |
 
 ## Deploy (from this host)
 
-Raspberry Pi monitoring:
-
 ```bash
-./deploy-to-pi.sh            # default SSH host `pi`
-./deploy-to-pi.sh pi
-```
-
-G5 apps (rsync + compose; no `git pull` on the box):
-
-```bash
-./deploy-to-g5.sh            # exporters + media-stack + immich
+./deploy-to-pi.sh                 # Pi monitoring + systemd units
+./deploy-to-g5.sh                 # exporters + media-stack + immich
 ./deploy-to-g5.sh exporters
-./deploy-to-g5.sh media-stack
-./deploy-to-g5.sh immich
+./deploy-to-g5.sh --system        # also install /usr/local + system units (sudo on G5)
 ```
 
 - Grafana: http://raspberrypi.local:3000
-- Prometheus: http://raspberrypi.local:9090/targets
 - Immich: http://192.168.0.54:2283
 - G5 exporters: `:9100` (node), `:9633` (SMART)
 

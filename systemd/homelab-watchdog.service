@@ -5,5 +5,6 @@ After=docker.service
 
 [Service]
 Type=oneshot
-WorkingDirectory=/home/wmichelin/homelab
-ExecStart=/home/wmichelin/homelab/systemd/homelab-watchdog.sh
+WorkingDirectory=__HOMELAB_ROOT__
+ExecStart=__HOMELAB_ROOT__/systemd/homelab-watchdog.sh
+Environment=HOMELAB_ROOT=__HOMELAB_ROOT__
