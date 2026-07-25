@@ -39,8 +39,10 @@ systemctl daemon-reload
 systemctl enable --now snapraid-metrics.timer
 systemctl enable --now snapraid-sync.timer
 systemctl enable --now snapraid-scrub.timer
-systemctl enable --now g5-remount-mergerfs.service
+# oneshot helper — no [Install] section; start manually after hotplug:
+#   sudo systemctl start g5-remount-mergerfs.service
 
 echo "Installed system units (ExecStart → ${REPO_SCRIPTS}) + /usr/local helpers."
 echo "TEXTFILE_DIR=${TEXTFILE_DIR}"
-systemctl --no-pager --full status snapraid-metrics.timer snapraid-sync.timer snapraid-scrub.timer g5-remount-mergerfs.service || true
+systemctl --no-pager --full status snapraid-metrics.timer snapraid-sync.timer snapraid-scrub.timer || true
+systemctl --no-pager --full status g5-remount-mergerfs.service || true
