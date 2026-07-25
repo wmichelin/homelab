@@ -15,16 +15,16 @@ mkdir -p "$STAGE/$NAME"
 cp -a "$ROOT/README.md" "$ROOT/.gitignore" "$STAGE/$NAME/" 2>/dev/null || true
 cp -a "$ROOT/docs" "$STAGE/$NAME/"
 cp -a "$ROOT/scripts" "$STAGE/$NAME/"
-cp -a "$ROOT/secrets" "$STAGE/$NAME/"
 cp -a "$ROOT/infra" "$STAGE/$NAME/"
+mkdir -p "$STAGE/$NAME/secrets"
+cp -a "$ROOT/secrets/homelab.env" "$STAGE/$NAME/secrets/" 2>/dev/null || true
+cp -a "$ROOT/secrets/homelab.env.example" "$STAGE/$NAME/secrets/" 2>/dev/null || true
 
-# Compose + env examples (not runtime media DBs)
+# Compose (not runtime media DBs)
 mkdir -p "$STAGE/$NAME/apps/media-stack" "$STAGE/$NAME/apps/immich" "$STAGE/$NAME/apps/exporters"
 cp -a "$ROOT/apps/media-stack/docker-compose.yml" "$STAGE/$NAME/apps/media-stack/"
-cp -a "$ROOT/apps/media-stack/.env.example" "$STAGE/$NAME/apps/media-stack/" 2>/dev/null || true
 cp -a "$ROOT/apps/immich/docker-compose.yml" "$ROOT/apps/immich/"hwaccel*.yml \
   "$ROOT/apps/immich/enable-nvidia.sh" "$STAGE/$NAME/apps/immich/" 2>/dev/null || true
-cp -a "$ROOT/apps/immich/.env.example" "$STAGE/$NAME/apps/immich/" 2>/dev/null || true
 cp -a "$ROOT/apps/exporters/docker-compose.yml" "$ROOT/apps/exporters/scripts" \
   "$ROOT/apps/exporters/systemd" "$ROOT/apps/exporters/systemd-user" \
   "$STAGE/$NAME/apps/exporters/" 2>/dev/null || true

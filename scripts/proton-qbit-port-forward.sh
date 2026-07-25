@@ -11,7 +11,10 @@ QBIT_URL="${QBIT_WEBUI_URL:-http://127.0.0.1:8080}"
 QBIT_USER="${QBIT_WEBUI_USER:-admin}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-COMPOSE_DIR="${ROOT_DIR}/media-stack"
+# shellcheck source=lib/envfile.sh
+source "${SCRIPT_DIR}/lib/envfile.sh"
+COMPOSE_DIR="${ROOT_DIR}/apps/media-stack"
+[[ -d "$COMPOSE_DIR" ]] || COMPOSE_DIR="${ROOT_DIR}/media-stack"
 NATPMPC="${NATPMPC_BIN:-${SCRIPT_DIR}/bin/natpmpc}"
 export LD_LIBRARY_PATH="${SCRIPT_DIR}/bin/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
@@ -19,7 +22,7 @@ STATE_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/proton-qbit"
 STATE_FILE="${STATE_DIR}/forwarded_port"
 COOKIE_JAR="${STATE_DIR}/qbit.cookies"
 ENV_FILE="${COMPOSE_DIR}/.env"
-SECRETS_FILE="${ROOT_DIR}/secrets/lan-samba-passwords.txt"
+SECRETS_FILE="${HOMELAB_SECRETS_FILE:-$(homelab_secrets_file)}"
 
 log() { printf '%s %s\n' "$(date -Is)" "$*"; }
 
@@ -33,14 +36,15 @@ docker_cmd() {
 
 read_password() {
   local pw=""
-  if [[ -f "${ENV_FILE}" ]]; then
-    pw="$(grep -E '^WEBUI_PASSWORD=' "${ENV_FILE}" | head -n1 | cut -d= -f2- || true)"
+  if [[ -f "${SECRETS_FILE}" ]]; then
+    pw="$(envfile_get "${SECRETS_FILE}" WEBUI_PASSWORD 2>/dev/null || true)"
+    [[ -n "${pw}" ]] || pw="$(envfile_get "${SECRETS_FILE}" QBITTORRENT_WEBUI_PASSWORD 2>/dev/null || true)"
   fi
-  if [[ -z "${pw}" && -f "${SECRETS_FILE}" ]]; then
-    pw="$(grep -E '^QBITTORRENT_WEBUI_PASSWORD=' "${SECRETS_FILE}" | head -n1 | cut -d= -f2- || true)"
+  if [[ -z "${pw}" && -f "${ENV_FILE}" ]]; then
+    pw="$(envfile_get "${ENV_FILE}" WEBUI_PASSWORD 2>/dev/null || true)"
   fi
   if [[ -z "${pw}" ]]; then
-    log "ERROR: qBittorrent WebUI password not found in ${ENV_FILE} or ${SECRETS_FILE}"
+    log "ERROR: qBittorrent WebUI password not found in ${SECRETS_FILE} or ${ENV_FILE}"
     return 1
   fi
   printf '%s' "${pw}"
@@ -118,12 +122,11 @@ read_env_bt_port() {
 
 write_env_bt_port() {
   local port="$1"
-  touch "${ENV_FILE}"
-  if grep -qE '^QBIT_BT_PORT=' "${ENV_FILE}"; then
-    sed -i "s/^QBIT_BT_PORT=.*/QBIT_BT_PORT=${port}/" "${ENV_FILE}"
-  else
-    printf 'QBIT_BT_PORT=%s\n' "${port}" >> "${ENV_FILE}"
+  if [[ -f "${SECRETS_FILE}" ]]; then
+    envfile_set "${SECRETS_FILE}" QBIT_BT_PORT "${port}"
   fi
+  envfile_set "${ENV_FILE}" QBIT_BT_PORT "${port}"
+  chmod 600 "${ENV_FILE}" 2>/dev/null || true
 }
 
 recreate_qbittorrent_if_needed() {

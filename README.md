@@ -2,8 +2,20 @@
 
 Monorepo for home infrastructure: Raspberry Pi monitoring, G5 storage/media stack, exporters, and Mac-side tooling.
 
-**Canonical clone:** this repo (`github.com/wmichelin/homelab`).  
-**G5 live root:** `~/code/homelab` (deployment checkout). Compat symlinks on G5: `~/networked-storage` → repo root, `~/homelab-exporters` → `apps/exporters`.
+**Operate from this Mac.** Remotes are rsync deploy targets — they do not need a git checkout.
+
+## Secrets
+
+Single source of truth (gitignored):
+
+```bash
+cp secrets/homelab.env.example secrets/homelab.env
+chmod 600 secrets/homelab.env
+# edit secrets/homelab.env
+./scripts/materialize-env.sh   # writes per-app .env files Docker actually reads
+```
+
+Committed template: `secrets/homelab.env.example`. Never commit `secrets/homelab.env` or materialized `.env` files.
 
 ## Layout
 
@@ -12,63 +24,35 @@ Monorepo for home infrastructure: Raspberry Pi monitoring, G5 storage/media stac
 | `apps/media-stack/` | Jellyfin, Radarr, Lidarr, qBittorrent, Prowlarr (G5) |
 | `apps/immich/` | Immich + ML / CUDA (G5) |
 | `apps/exporters/` | node-exporter, SMART, docker/netdev textfile metrics (G5) |
-| `infra/storage/` | fstab / SnapRAID / Samba snapshots + setup scripts |
-| `infra/systemd/` | system + user unit files for G5 |
-| `scripts/` | G5 backups, Proton→qBit port sync, unit installer |
-| `docs/` | G5 runbooks |
-| `secrets/` | passwords on G5 only (mode 600, gitignored) |
+| `infra/` | storage snapshots + systemd unit files |
+| `scripts/` | backups, Proton→qBit port sync, env materialize, unit installer |
+| `secrets/homelab.env` | unified secrets (local only) |
 | `docker-compose.yml`, `grafana/`, `prometheus/`, … | Pi monitoring stack |
-| `g5-exporters/` | **Deprecated** — use `apps/exporters/` |
 | `apple-photos-export/` | Mac Photos → SnapRAID export tooling |
-| `media-stack`, `immich` | Symlinks into `apps/` (G5 path compat) |
 
-Never commit `.env`, `secrets/`, app config dirs, Immich library/postgres, or textfile `*.prom`.
+## Deploy (from this host)
 
-## Monitoring stack (Raspberry Pi)
-
-```bash
-./deploy-to-pi.sh wmichelin raspberrypi.local
-```
-
-- Grafana: http://raspberrypi.local:3000 (Homelab → **Homelab Monitoring**)
-- Prometheus targets: http://raspberrypi.local:9090/targets
-
-### G5 exporter notes
-
-- Exporters listen on `192.168.0.54:9100` (node) and `:9633` (SMART).
-- SnapRAID / Docker textfile metrics live under `~/code/homelab/apps/exporters/textfile/` (also `~/homelab-exporters/textfile` via symlink).
-- Immich UI: http://192.168.0.54:2283 — blackbox probes `/api/server/ping`.
-
-Preferred deploy on G5 is `git pull` in `~/code/homelab`, then `docker compose up -d` in the relevant `apps/*` directory. Helper (rsync fallback):
+Raspberry Pi monitoring:
 
 ```bash
-./deploy-exporters-to-g5.sh g5 wmichelin
+./deploy-to-pi.sh            # default SSH host `pi`
+./deploy-to-pi.sh pi
 ```
 
-## G5 apps
+G5 apps (rsync + compose; no `git pull` on the box):
 
 ```bash
-cd ~/code/homelab/apps/media-stack && docker compose ps
-cd ~/code/homelab/apps/immich && docker compose ps
-cd ~/code/homelab/apps/exporters && docker compose ps
+./deploy-to-g5.sh            # exporters + media-stack + immich
+./deploy-to-g5.sh exporters
+./deploy-to-g5.sh media-stack
+./deploy-to-g5.sh immich
 ```
 
-Copy `.env.example` → `.env` on a fresh host (never commit `.env`).
-
-User systemd units:
-
-```bash
-~/code/homelab/scripts/install-user-units.sh
-```
-
-Shares and storage runbooks: `docs/lan-storage.md`. Config-only backups: `docs/backup-google-drive.md`.
+- Grafana: http://raspberrypi.local:3000
+- Prometheus: http://raspberrypi.local:9090/targets
+- Immich: http://192.168.0.54:2283
+- G5 exporters: `:9100` (node), `:9633` (SMART)
 
 ## Apple Photos export (Mac)
 
 See [`apple-photos-export/README.md`](apple-photos-export/README.md).
-
-```bash
-cd apple-photos-export
-cp config.example.env config.env   # once; gitignored
-./export-photos.sh
-```

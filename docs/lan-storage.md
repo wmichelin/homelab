@@ -4,7 +4,7 @@ Host: `wmichelin-G5-5000` · IP: `192.168.0.54` · **LAN only**
 
 Ubuntu OS lives on **NVMe only** (`nvme0n1`) and was never wiped.
 
-Credentials: `~/code/homelab/secrets/lan-samba-passwords.txt` (mode 600; also symlinked from `~/.config/`)
+Credentials: `~/code/homelab/secrets/homelab.env` (mode 600; keys `SMB_*`, `JELLYFIN_*`, `RADARR_*`, …)
 
 ## Quick map
 
@@ -43,7 +43,7 @@ Or CLI: `mount_smbfs //wmichelin@192.168.0.54/safe ~/mnt/safe`
 ## Mac: general tree (includes media)
 
 Finder → Go → Connect to Server → `smb://192.168.0.54/storage`  
-User: `wmichelin` (password in `~/code/homelab/secrets/lan-samba-passwords.txt`)
+User: `wmichelin` (password in `~/code/homelab/secrets/homelab.env` → `SMB_PASS_WALTER`)
 
 ## Mac: Time Machine
 
@@ -89,7 +89,7 @@ Public ones need **no account** (already added). Better results usually need a *
 | Private trackers | Community invite / application (ratio rules); paste API/passkey into Prowlarr |
 | Usenet | Pay a provider + an indexer (e.g. NZBGeek-style); add both in Prowlarr |
 
-Do **not** publish tracker invites or API keys. Creds live in `~/code/homelab/secrets/lan-samba-passwords.txt`.
+Do **not** publish tracker invites or API keys. Creds live in `~/code/homelab/secrets/homelab.env`.
 
 ## Offsite config backup
 

@@ -41,7 +41,7 @@ id marissa >/dev/null 2>&1 || useradd -r -m -d /home/marissa -s /usr/sbin/nologi
 # Migrate samba password: copy from wife to marissa if needed
 if pdbedit -L 2>/dev/null | grep -q '^wife:'; then
   # re-add marissa with same password from secrets file if available
-  PASSFILE=/home/wmichelin/code/homelab/secrets/lan-samba-passwords.txt
+  PASSFILE=/home/wmichelin/code/homelab/secrets/homelab.env
   if [[ -f "$PASSFILE" ]]; then
     WPASS=$(grep -E '^SMB_PASS_(WIFE|MARISSA)=' "$PASSFILE" | head -1 | cut -d= -f2-)
   else
@@ -52,7 +52,7 @@ if pdbedit -L 2>/dev/null | grep -q '^wife:'; then
 fi
 # Ensure marissa has smb account
 if ! pdbedit -L 2>/dev/null | grep -q '^marissa:'; then
-  PASSFILE=/home/wmichelin/code/homelab/secrets/lan-samba-passwords.txt
+  PASSFILE=/home/wmichelin/code/homelab/secrets/homelab.env
   WPASS=$(grep -E '^SMB_PASS_(WIFE|MARISSA)=' "$PASSFILE" 2>/dev/null | head -1 | cut -d= -f2-)
   [[ -n "$WPASS" ]] || WPASS=$(openssl rand -base64 12)
   echo -e "$WPASS\n$WPASS" | smbpasswd -a -s marissa
