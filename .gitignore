@@ -1,6 +1,7 @@
 # Environment variables
 .env
 .env.local
+apple-photos-export/config.env
 
 # Docker volumes and data
 grafana-data/
