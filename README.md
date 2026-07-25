@@ -41,7 +41,7 @@ Never commit `secrets/homelab.env` or materialized `.env` files.
 ```
 
 - Grafana: http://raspberrypi.local:3000
-- Immich: http://192.168.0.54:2283
+- Immich: http://g5.local:2283
 - G5 exporters: `:9100` (node), `:9633` (SMART)
 
 ## Apple Photos export (Mac)

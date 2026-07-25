@@ -6,7 +6,7 @@ Where things run and how they are deployed. Operate from the Mac; remotes are rs
 |------|------|-------------|--------|
 | Mac | Source of truth (git + `secrets/homelab.env`) | `~/code/homelab` | — |
 | Pi (`pi` / raspberrypi.local) | Prometheus, Grafana, local exporters, Hubitat, Pantry | `~/homelab` | `./deploy-to-pi.sh` |
-| G5 (`g5` / 192.168.0.54) | Media, Immich, exporters, SnapRAID/Samba | `~/code/homelab` | `./deploy-to-g5.sh` |
+| G5 (`g5` / `g5.local` / 192.168.0.54) | Media, Immich, exporters, SnapRAID/Samba | `~/code/homelab` | `./deploy-to-g5.sh` |
 
 ## Pi
 
