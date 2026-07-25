@@ -4,7 +4,8 @@ After=local-fs.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/snapraid-job-wrapper.sh sync
+Environment=TEXTFILE_DIR=/home/wmichelin/code/homelab/apps/exporters/textfile
+ExecStart=/home/wmichelin/code/homelab/apps/exporters/scripts/snapraid-job-wrapper.sh sync
 Nice=10
 IOSchedulingClass=best-effort
 IOSchedulingPriority=7

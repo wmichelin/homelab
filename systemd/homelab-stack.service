@@ -7,7 +7,7 @@ Wants=network-online.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-WorkingDirectory=/home/wmichelin/homelab
+WorkingDirectory=__HOMELAB_ROOT__
 # Reconcile the whole stack to desired state on boot. Unlike a container
 # restart policy, this recreates containers that no longer exist.
 ExecStart=/usr/bin/docker compose up -d --remove-orphans
