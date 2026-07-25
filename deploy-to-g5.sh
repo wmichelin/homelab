@@ -81,8 +81,8 @@ rsync -avz --delete --progress \
   --exclude 'network-exporter/' \
   --exclude 'process-exporter/' \
   --exclude 'systemd/' \
-  --exclude 'docker-compose.yml' \
-  --exclude 'deploy-to-pi.sh' \
+  --exclude '/docker-compose.yml' \
+  --exclude '/deploy-to-pi.sh' \
   --exclude 'apps/media-stack/config/' \
   --exclude 'apps/immich/library/' \
   --exclude 'apps/immich/postgres/' \
@@ -154,6 +154,8 @@ fi
 
 echo ""
 echo "G5 deploy (${SCOPE}) complete → ${G5_USER}@${G5_HOST}:${REMOTE_PATH}"
-echo "  Immich:     http://${G5_HOST}:2283"
-echo "  Jellyfin:   http://${G5_HOST}:8096"
+echo "  Hub:        http://g5.lan  (lan-dns on G5 + Mac resolver — docs/g5-lan-subdomains.md)"
+echo "  Immich:     http://immich.g5.lan  (or http://${G5_HOST}:2283)"
+echo "  Jellyfin:   http://jellyfin.g5.lan  (or http://${G5_HOST}:8096)"
+echo "  Sonarr:     http://sonarr.g5.lan"
 echo "  node-exp:   http://${G5_HOST}:9100/metrics"

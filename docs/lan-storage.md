@@ -53,14 +53,18 @@ User: `wmichelin` (password in `~/code/homelab/secrets/homelab.env` → `SMB_PAS
 
 ## Media apps (LAN browser)
 
-| App | URL | Login |
-|-----|-----|--------|
-| Jellyfin | http://192.168.0.54:8096 | first-run wizard |
-| Radarr | http://192.168.0.54:7878 | set auth in UI |
-| Sonarr | http://192.168.0.54:8989 | set auth in UI |
-| Lidarr | http://192.168.0.54:8686 | set auth in UI |
-| qBittorrent | http://192.168.0.54:8080 | `admin` + `QBITTORRENT_WEBUI_PASSWORD` in secrets |
-| Prowlarr | http://192.168.0.54:9696 | indexer manager (synced to Radarr/Sonarr) |
+Prefer `*.g5.lan` (Caddy + Pi DNS — `docs/g5-lan-subdomains.md`). Port URLs still work.
+
+| App | Subdomain | Direct |
+|-----|-----------|--------|
+| Hub | http://g5.lan | — |
+| Jellyfin | http://jellyfin.g5.lan | http://192.168.0.54:8096 |
+| Radarr | http://radarr.g5.lan | http://192.168.0.54:7878 |
+| Sonarr | http://sonarr.g5.lan | http://192.168.0.54:8989 |
+| Lidarr | http://lidarr.g5.lan | http://192.168.0.54:8686 |
+| qBittorrent | http://qbittorrent.g5.lan | http://192.168.0.54:8080 (`admin` + secrets) |
+| Prowlarr | http://prowlarr.g5.lan | http://192.168.0.54:9696 |
+| Immich | http://immich.g5.lan | http://192.168.0.54:2283 |
 
 Compose: `~/code/homelab/apps/media-stack/docker-compose.yml`  
 Libraries: `/mnt/storage/media/movies`, `…/music`, `…/tv`  

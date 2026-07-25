@@ -41,7 +41,8 @@ Never commit `secrets/homelab.env` or materialized `.env` files.
 ```
 
 - Grafana: http://raspberrypi.local:3000
-- Immich: http://g5.local:2283
+- Immich: http://immich.g5.lan (or http://g5.local:2283)
+- Media apps: http://g5.lan hub — see `docs/g5-lan-subdomains.md`
 - G5 exporters: `:9100` (node), `:9633` (SMART)
 
 ## Apple Photos export (Mac)

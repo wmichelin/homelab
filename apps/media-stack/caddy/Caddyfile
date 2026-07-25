@@ -1,0 +1,45 @@
+# LAN reverse proxy for G5 apps (*.g5.lan → container ports).
+# DNS: g5-lan-dns (dnsmasq) on this host answers *.g5.lan → 192.168.0.54.
+# http:// only — .lan is not a public TLD (no ACME).
+
+{
+	auto_https off
+}
+
+http://g5.lan {
+	root * /srv
+	file_server
+	encode gzip
+}
+
+http://jellyfin.g5.lan {
+	reverse_proxy jellyfin:8096
+}
+
+http://radarr.g5.lan {
+	reverse_proxy radarr:7878
+}
+
+http://sonarr.g5.lan {
+	reverse_proxy sonarr:8989
+}
+
+http://lidarr.g5.lan {
+	reverse_proxy lidarr:8686
+}
+
+http://qbittorrent.g5.lan {
+	# Keep browser Host so CSRF Origin/Referer match (do not rewrite to upstream).
+	reverse_proxy qbittorrent:8080 {
+		header_up X-Real-IP {remote_host}
+	}
+}
+
+http://prowlarr.g5.lan {
+	reverse_proxy prowlarr:9696
+}
+
+http://immich.g5.lan {
+	# Immich runs in a separate compose project; reach via host-published port.
+	reverse_proxy host.docker.internal:2283
+}

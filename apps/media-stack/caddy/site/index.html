@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>g5.lan</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --fg: #e7ecf1;
+      --muted: #8b98a5;
+      --line: #243040;
+      --accent: #6db3f2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(ellipse at top left, #1a2838 0%, transparent 55%),
+        radial-gradient(ellipse at bottom right, #162032 0%, transparent 50%),
+        var(--bg);
+      color: var(--fg);
+      display: grid;
+      place-items: center;
+      padding: 2rem;
+    }
+    main { width: min(36rem, 100%); }
+    h1 {
+      font-family: "IBM Plex Serif", Georgia, serif;
+      font-weight: 500;
+      font-size: 2.4rem;
+      margin: 0 0 0.35rem;
+      letter-spacing: -0.02em;
+    }
+    p { margin: 0 0 1.75rem; color: var(--muted); }
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      border-top: 1px solid var(--line);
+    }
+    li { border-bottom: 1px solid var(--line); }
+    a {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.9rem 0.15rem;
+      color: var(--fg);
+      text-decoration: none;
+    }
+    a:hover { color: var(--accent); }
+    a span { color: var(--muted); font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>g5.lan</h1>
+    <p>Homelab apps on this host.</p>
+    <ul>
+      <li><a href="http://jellyfin.g5.lan">Jellyfin <span>media</span></a></li>
+      <li><a href="http://immich.g5.lan">Immich <span>photos</span></a></li>
+      <li><a href="http://radarr.g5.lan">Radarr <span>movies</span></a></li>
+      <li><a href="http://sonarr.g5.lan">Sonarr <span>tv</span></a></li>
+      <li><a href="http://lidarr.g5.lan">Lidarr <span>music</span></a></li>
+      <li><a href="http://prowlarr.g5.lan">Prowlarr <span>indexers</span></a></li>
+      <li><a href="http://qbittorrent.g5.lan">qBittorrent <span>downloads</span></a></li>
+    </ul>
+  </main>
+</body>
+</html>

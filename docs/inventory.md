@@ -5,8 +5,8 @@ Where things run and how they are deployed. Operate from the Mac; remotes are rs
 | Host | Role | Remote path | Deploy |
 |------|------|-------------|--------|
 | Mac | Source of truth (git + `secrets/homelab.env`) | `~/code/homelab` | — |
-| Pi (`pi` / raspberrypi.local) | Prometheus, Grafana, local exporters, Hubitat, Pantry | `~/homelab` | `./deploy-to-pi.sh` |
-| G5 (`g5` / `g5.local` / 192.168.0.54) | Media, Immich, exporters, SnapRAID/Samba | `~/code/homelab` | `./deploy-to-g5.sh` |
+| Pi (`pi` / raspberrypi.local / 192.168.0.104) | Prometheus, Grafana, exporters, Hubitat, Pantry | `~/homelab` | `./deploy-to-pi.sh` |
+| G5 (`g5` / `g5.local` / 192.168.0.54) | Media, Immich, exporters, SnapRAID/Samba, **Caddy + LAN DNS (`*.g5.lan`)** | `~/code/homelab` | `./deploy-to-g5.sh` |
 
 ## Pi
 
@@ -21,7 +21,7 @@ Where things run and how they are deployed. Operate from the Mac; remotes are rs
 
 | Component | Location |
 |-----------|----------|
-| Media stack | `apps/media-stack/` (+ `config/` runtime, rsync-excluded) |
+| Media stack | `apps/media-stack/` (+ `config/` runtime, rsync-excluded); Caddy + `lan-dns` for `*.g5.lan` |
 | Immich | `apps/immich/` (`library/`, `postgres/` rsync-excluded) |
 | Exporters | `apps/exporters/` (`textfile/*.prom` rsync-excluded) |
 | User units | `infra/systemd/user/` via `scripts/install-user-units.sh` |

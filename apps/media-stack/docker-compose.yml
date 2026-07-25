@@ -97,3 +97,46 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=America/New_York
+
+  # Reverse proxy: jellyfin.g5.lan, sonarr.g5.lan, …
+  caddy:
+    image: caddy:2.10-alpine
+    container_name: g5-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy/site:/srv:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - jellyfin
+      - radarr
+      - sonarr
+      - lidarr
+      - qbittorrent
+      - prowlarr
+
+  # Answers *.g5.lan → 192.168.0.54 (this host). Split-DNS on clients; Pi not required.
+  # Bind LAN IP only so we do not collide with systemd-resolved on 127.0.0.53.
+  lan-dns:
+    image: alpine:3.21
+    container_name: g5-lan-dns
+    restart: unless-stopped
+    ports:
+      - "192.168.0.54:53:53/udp"
+      - "192.168.0.54:53:53/tcp"
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - "apk add --no-cache dnsmasq >/dev/null && exec dnsmasq -k --log-facility=- -C /etc/dnsmasq.conf"
+
+volumes:
+  caddy-data:
+  caddy-config:
