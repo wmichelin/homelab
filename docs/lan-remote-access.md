@@ -2,7 +2,7 @@
 
 Host: `wmichelin-G5-5000` · IP: `192.168.0.54` · LAN only (no internet tunnel)
 
-Credentials: `~/.config/lan-remote-password.txt` (mode 600)
+Credentials: `~/code/homelab/secrets/homelab.env` (mode 600; keys `RDP_*`, `VNC_PASSWORD`)
 
 ## Bonjour / network browsing
 
@@ -20,7 +20,7 @@ Ubuntu’s GNOME Remote Desktop build has **no VNC**. Use RDP for the real deskt
 
 1. On the Mac, install **Microsoft Remote Desktop** (App Store / Microsoft).
 2. Add PC → `192.168.0.54` or `wmichelin-G5-5000.local`
-3. User / password from `lan-remote-password.txt` (`RDP_USER` / `RDP_PASSWORD`)
+3. User / password from `secrets/homelab.env` (`RDP_USER` / `RDP_PASSWORD`)
 4. Connect. You should see the same GNOME session as the console.
 
 ## Alternate: macOS Screen Sharing (VNC)
@@ -29,7 +29,7 @@ TigerVNC listens on port **5900**. This is a **separate** minimal desktop (Kitty
 
 1. Finder → **Go → Connect to Server** → `vnc://wmichelin-G5-5000.local` or `vnc://192.168.0.54:5900`
 2. Or open **Screen Sharing** to that address
-3. Password: `VNC_PASSWORD` from `lan-remote-password.txt` (VNC passwords are max 8 characters)
+3. Password: `VNC_PASSWORD` from `secrets/homelab.env` (VNC passwords are max 8 characters)
 
 ## Always-on notes
 

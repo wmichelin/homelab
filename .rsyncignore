@@ -1,8 +1,31 @@
-grafana-storage
-prometheus-storage
+.git
+.idea
+.DS_Store
+.claude
+*.log
 __pycache__
 *.pyc
-.DS_Store
-.git
 node_modules
-*.log
+
+# Host-only / never deploy runtime data
+grafana-storage
+prometheus-storage
+grafana-data
+prometheus-data
+backups/
+logs/
+apple-photos-export/config.env
+
+# Secrets travel via explicit scp in deploy scripts (not bulk rsync)
+secrets/homelab.env
+secrets/*.txt
+
+# Materialized envs are pushed explicitly after materialize-env.sh
+.env
+**/.env
+
+# G5 runtime (keep remote copies; do not clobber from Mac)
+apps/media-stack/config/
+apps/immich/library/
+apps/immich/postgres/
+apps/exporters/textfile/*.prom

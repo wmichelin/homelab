@@ -1,6 +1,6 @@
 # Offsite backup (Google Drive)
 
-What gets backed up: docs, scripts, secrets, `docker-compose.yml`, and media-stack app configs.  
+What gets backed up: docs, scripts, `secrets/homelab.env`, infra, compose files, and media-stack app configs.  
 What does **not**: `/mnt/storage` media library, TM disk contents, SnapRAID parity.
 
 ## Status
