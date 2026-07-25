@@ -1,0 +1,17 @@
+# BEGIN G5-STORAGE
+# G5 storage stack — mounts by UUID (do not use /dev/sdX)
+UUID=de90c04b-80ab-4beb-9423-f9c928847b8a  /mnt/disks/disk-ssd1  ext4  defaults,nofail,x-systemd.device-timeout=10,x-systemd.automount  0  2
+UUID=fdfec884-0ec1-448b-9f69-fa30c1dcf0c9  /mnt/disks/disk-ssd2  ext4  defaults,nofail,x-systemd.device-timeout=10,x-systemd.automount  0  2
+UUID=84cbe6f6-4a3d-4e1d-a645-35f1933432d5 /mnt/disks/disk-wd931 ext4  defaults,nofail,x-systemd.device-timeout=10,x-systemd.automount  0  2
+UUID=902604c4-ca09-430d-b4eb-bb7c2c998006 /mnt/disks/disk-hgst1 ext4  defaults,nofail,x-systemd.device-timeout=10,x-systemd.automount  0  2
+UUID=bc36a1bc-3500-42be-96e5-ce0d734585b1 /mnt/disks/disk-hdd22 ext4  defaults,nofail,x-systemd.device-timeout=10,x-systemd.automount  0  2
+UUID=659596c5-66c4-465d-9d58-f4ff3aa4fe2b    /mnt/disks/parity1    ext4  defaults,nofail,x-systemd.device-timeout=10,x-systemd.automount  0  2
+UUID=6c9164f3-b197-4437-b899-8eea38b220b7  /mnt/tm/walter        ext4  defaults,nofail,x-systemd.device-timeout=10,x-systemd.automount  0  2
+UUID=4468d8a8-6c47-4fef-9840-d0f3263b4035 /mnt/tm/marissa       ext4  defaults,nofail,x-systemd.device-timeout=10,x-systemd.automount  0  2
+# SnapRAID-protected pool only (~5TB) — SMB share "safe"
+/mnt/disks/disk-ssd1:/mnt/disks/disk-ssd2:/mnt/disks/disk-wd931:/mnt/disks/disk-hgst1  /mnt/storage/safe  fuse.mergerfs  defaults,allow_other,use_ino,category.create=mfs,minfreespace=10G,fsname=mergerfs-safe,nonempty  0  0
+# Unprotected bulk (disk-hdd22) — media / torrents / apps
+/mnt/disks/disk-hdd22/media     /mnt/storage/media     none  bind,nofail  0  0
+/mnt/disks/disk-hdd22/torrents  /mnt/storage/torrents  none  bind,nofail  0  0
+/mnt/disks/disk-hdd22/apps      /mnt/storage/apps      none  bind,nofail  0  0
+# END G5-STORAGE

@@ -1,0 +1,14 @@
+[Unit]
+Description=Proton VPN NAT-PMP renew + qBittorrent listen port sync
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=%h/code/homelab/scripts/proton-qbit-port-forward.sh
+Restart=always
+RestartSec=10
+Nice=5
+
+[Install]
+WantedBy=default.target

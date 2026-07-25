@@ -1,0 +1,8 @@
+[Unit]
+Description=Emit SnapRAID Prometheus textfile metrics
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/snapraid-metrics.sh
+Nice=10

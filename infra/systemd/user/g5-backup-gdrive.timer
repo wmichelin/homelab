@@ -1,0 +1,10 @@
+[Unit]
+Description=Weekly Google Drive backup of homelab config
+
+[Timer]
+OnCalendar=Sun *-*-* 06:30:00
+Persistent=true
+RandomizedDelaySec=10m
+
+[Install]
+WantedBy=timers.target

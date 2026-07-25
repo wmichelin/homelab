@@ -1,21 +1,33 @@
-# Environment variables
+# Secrets & local env
+secrets/
 .env
 .env.local
+**/.env
+!.env.example
+!**/.env.example
 apple-photos-export/config.env
 
-# Docker volumes and data
+# Dynamic DNS config (contains password)
+ddclient.conf
+
+# Docker volumes and runtime data
 grafana-data/
 prometheus-data/
+apps/media-stack/config/
+apps/immich/library/
+apps/immich/postgres/
+apps/exporters/textfile/*.prom
 
-# Logs
-*.log
+# Backups / logs / archives
+backups/
 logs/
+*.log
+*.tar.gz
+*.tar.gz.gpg
 
-# OS files
+# OS / editor
 .DS_Store
 Thumbs.db
-
-# IDE files
 .vscode/
 .idea/
 *.swp
@@ -37,6 +49,3 @@ pip-delete-this-directory.txt
 *.tmp
 *.temp
 .tmp/
-
-# Dynamic DNS config (contains password)
-ddclient.conf

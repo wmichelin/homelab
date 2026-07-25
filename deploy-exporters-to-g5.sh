@@ -1,15 +1,21 @@
 #!/bin/bash
-# Deploy g5 exporter stack + SnapRAID metrics helpers to the G5 host.
+# Deploy G5 exporter stack + SnapRAID metrics helpers.
+# Prefer git pull on the G5 checkout; this script rsyncs apps/exporters as a fallback.
 # Does not require passwordless sudo (uses docker group + systemd --user).
 
 set -euo pipefail
 
 G5_HOST=${1:-g5}
 G5_USER=${2:-wmichelin}
-REMOTE_PATH=${3:-/home/$G5_USER/homelab-exporters}
+REMOTE_PATH=${3:-/home/$G5_USER/code/homelab/apps/exporters}
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SRC="${SCRIPT_DIR}/g5-exporters"
+SRC="${SCRIPT_DIR}/apps/exporters"
+
+if [[ ! -d "$SRC" ]]; then
+  echo "Missing $SRC — exporters live under apps/exporters now." >&2
+  exit 1
+fi
 
 echo "Syncing exporters to ${G5_USER}@${G5_HOST}:${REMOTE_PATH}..."
 rsync -avz --progress \
@@ -21,27 +27,29 @@ echo "Installing scripts, user systemd units, and starting exporters on g5..."
 ssh "${G5_USER}@${G5_HOST}" bash -s -- "$REMOTE_PATH" <<'REMOTE'
 set -euo pipefail
 REMOTE_PATH=$1
+REPO_ROOT="$(cd "$REMOTE_PATH/../.." && pwd)"
 
 chmod +x "$REMOTE_PATH/scripts/"*.sh
 mkdir -p "$REMOTE_PATH/textfile"
 
-mkdir -p "$HOME/.config/systemd/user"
-cp "$REMOTE_PATH/systemd-user/"*.service "$HOME/.config/systemd/user/"
-cp "$REMOTE_PATH/systemd-user/"*.timer "$HOME/.config/systemd/user/"
+if [[ -x "$REPO_ROOT/scripts/install-user-units.sh" ]]; then
+  "$REPO_ROOT/scripts/install-user-units.sh"
+else
+  mkdir -p "$HOME/.config/systemd/user"
+  cp "$REMOTE_PATH/systemd-user/"*.service "$HOME/.config/systemd/user/"
+  cp "$REMOTE_PATH/systemd-user/"*.timer "$HOME/.config/systemd/user/"
+  systemctl --user daemon-reload
+fi
 
-systemctl --user daemon-reload
 systemctl --user enable --now snapraid-metrics.timer
 # Prefer the compose-based docker-stats-exporter (has docker.sock access).
-# Disable the host timer so it cannot overwrite metrics with empty files.
 systemctl --user disable --now docker-stats-metrics.timer 2>/dev/null || true
 systemctl --user stop docker-stats-metrics.service 2>/dev/null || true
-# Linger so user timers keep running without an interactive login
 loginctl enable-linger "$USER" 2>/dev/null || true
 
 TEXTFILE_DIR="$REMOTE_PATH/textfile" "$REMOTE_PATH/scripts/snapraid-metrics.sh" || true
 
 cd "$REMOTE_PATH"
-# Stop legacy cadvisor if present from earlier deploys
 docker rm -f cadvisor 2>/dev/null || true
 docker compose pull
 docker compose up -d --remove-orphans

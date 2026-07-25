@@ -1,0 +1,9 @@
+[Unit]
+Description=Backup homelab config to Google Drive
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/code/homelab/scripts/backup-to-gdrive.sh
+Nice=10
+IOSchedulingClass=idle
