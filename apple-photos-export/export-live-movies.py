@@ -10,6 +10,7 @@ Paths default from environment (see config.example.env) or CLI flags.
 from __future__ import annotations
 
 import argparse
+import datetime
 import hashlib
 import json
 import os
@@ -18,6 +19,8 @@ import sys
 from pathlib import Path
 
 import osxphotos
+from osxphotos import QueryOptions
+from pytimeparse2 import parse as parse_duration
 
 
 def env_path(name: str, default: Path | None = None) -> Path | None:
@@ -92,6 +95,12 @@ def main() -> int:
     parser.add_argument("--dest", type=Path, default=None)
     parser.add_argument("--library", type=Path, default=None)
     parser.add_argument("--state", type=Path, default=None)
+    parser.add_argument(
+        "--added-in-last",
+        type=str,
+        default=None,
+        help="Only consider Live Photos added in this window (e.g. 7d)",
+    )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--verbose", action="store_true")
     # Ignore unknown args so export-photos.sh can forward osxphotos flags harmlessly
@@ -111,18 +120,35 @@ def main() -> int:
         print(f"error: library not found: {library}", file=sys.stderr)
         return 1
 
+    added_in_last: datetime.timedelta | None = None
+    if args.added_in_last:
+        seconds = parse_duration(args.added_in_last)
+        if seconds is None:
+            print(
+                f"error: could not parse --added-in-last: {args.added_in_last!r}",
+                file=sys.stderr,
+            )
+            return 1
+        added_in_last = datetime.timedelta(seconds=seconds)
+
     print(f"Library: {library}")
     print(f"Dest:    {dest}")
     print(f"State:   {state_path}")
+    if added_in_last is not None:
+        print(f"Filter:  added in last {args.added_in_last}")
     if args.dry_run:
         print("Mode:    dry-run")
     print()
 
     state = load_state(state_path)
     db = osxphotos.PhotosDB(dbfile=str(library))
+    if added_in_last is not None:
+        candidates_iter = db.query(QueryOptions(added_in_last=added_in_last))
+    else:
+        candidates_iter = db.photos()
 
     exported = skipped = missing = errors = 0
-    for photo in db.photos():
+    for photo in candidates_iter:
         if not photo.live_photo:
             continue
 

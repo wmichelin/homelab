@@ -34,5 +34,9 @@ if ! command -v osxphotos >/dev/null 2>&1; then
   exit 1
 fi
 
+# Daily jobs only need recent adds; set PHOTOS_ADDED_IN_LAST=all for a full scan.
+export PHOTOS_ADDED_IN_LAST="${PHOTOS_ADDED_IN_LAST:-7d}"
+echo "[$(ts)] PHOTOS_ADDED_IN_LAST=${PHOTOS_ADDED_IN_LAST}"
+
 "${SCRIPT_DIR}/export-photos.sh"
 echo "[$(ts)] scheduled Apple Photos export finished"

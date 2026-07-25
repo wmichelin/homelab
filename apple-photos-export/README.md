@@ -37,12 +37,13 @@ cp config.example.env config.env
 | `PHOTOS_LIBRARY` | Photos library path (default: `~/Pictures/Photos Library.photoslibrary`) |
 | `PHOTOS_EXPORT_DB` | osxphotos export DB (default under `~/Library/Application Support/osxphotos/`) |
 | `LIVE_MOVIES_STATE` | JSON state for Live movie copies |
+| `PHOTOS_ADDED_IN_LAST` | Limit to photos added in this window (e.g. `7d`). LaunchAgent defaults to `7d`; use `all` for a full scan |
 
 ## Run
 
 Always run from **Terminal.app** (Full Disk Access). For the scheduled LaunchAgent, grant Full Disk Access to `/bin/bash` (and `osxphotos` if needed).
 
-### Fresh export
+### Fresh / full export
 
 ```bash
 ./export-photos.sh
@@ -50,9 +51,21 @@ Always run from **Terminal.app** (Full Disk Access). For the scheduled LaunchAge
 
 Safe to interrupt and re-run: pass 1 uses `--update` + an export DB; pass 2 skips unchanged Live movies via digest state.
 
+### Incremental (recent adds only)
+
+Much faster when only a handful of new photos exist — avoids walking the whole library over SMB:
+
+```bash
+PHOTOS_ADDED_IN_LAST=7d ./export-photos.sh
+# or:
+./export-photos.sh --added-in-last 7d
+```
+
+Does not pick up edits to photos added earlier; run a full export occasionally for that.
+
 ### Periodic export (LaunchAgent)
 
-Install a user LaunchAgent that runs daily at **02:00** local time. Skips cleanly if `$PHOTOS_EXPORT_ROOT` is not mounted.
+Install a user LaunchAgent that runs daily at **02:00** local time. Skips cleanly if `$PHOTOS_EXPORT_ROOT` is not mounted. Defaults to `PHOTOS_ADDED_IN_LAST=7d` (override in `config.env`, or set `all` for a full daily scan).
 
 ```bash
 ./install-launchagent.sh              # install / refresh
