@@ -106,6 +106,12 @@ scrape_configs:
           probe: 'http'
           service: 'Radarr'
       - targets:
+          - http://192.168.0.54:8989/
+        labels:
+          host: 'g5'
+          probe: 'http'
+          service: 'Sonarr'
+      - targets:
           - http://192.168.0.54:8686/
         labels:
           host: 'g5'

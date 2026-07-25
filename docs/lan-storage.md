@@ -57,16 +57,17 @@ User: `wmichelin` (password in `~/code/homelab/secrets/homelab.env` → `SMB_PAS
 |-----|-----|--------|
 | Jellyfin | http://192.168.0.54:8096 | first-run wizard |
 | Radarr | http://192.168.0.54:7878 | set auth in UI |
+| Sonarr | http://192.168.0.54:8989 | set auth in UI |
 | Lidarr | http://192.168.0.54:8686 | set auth in UI |
 | qBittorrent | http://192.168.0.54:8080 | `admin` + `QBITTORRENT_WEBUI_PASSWORD` in secrets |
-| Prowlarr | http://192.168.0.54:9696 | indexer manager (synced to Radarr) |
+| Prowlarr | http://192.168.0.54:9696 | indexer manager (synced to Radarr/Sonarr) |
 
 Compose: `~/code/homelab/apps/media-stack/docker-compose.yml`  
 Libraries: `/mnt/storage/media/movies`, `…/music`, `…/tv`  
 Downloads:
 - **Incomplete (scratch):** OS NVMe `/var/lib/qbittorrent/incomplete` → container `/downloads/incomplete`
-- **Complete (seed + Radarr):** `disk-hdd22` `/mnt/disks/disk-hdd22/torrents/complete` → `/downloads/complete`  
-  (Finish move is a cross-disk copy; Radarr hardlinks from `complete` → `media/movies` still work.)
+- **Complete (seed + *arr):** `disk-hdd22` `/mnt/disks/disk-hdd22/torrents/complete` → `/downloads/complete`  
+  (Finish move is a cross-disk copy; Radarr/Sonarr hardlinks from `complete` → `media/movies` or `media/tv` still work.)
 
 ### First-run checklist
 
