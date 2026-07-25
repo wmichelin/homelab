@@ -11,6 +11,9 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      # Pretty URL via G5 Caddy (grafana.g5.lan → this host :3000)
+      - GF_SERVER_ROOT_URL=http://grafana.g5.lan
+      - GF_SERVER_DOMAIN=grafana.g5.lan
     restart: unless-stopped
 
   prometheus:

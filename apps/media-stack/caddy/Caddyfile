@@ -43,3 +43,8 @@ http://immich.g5.lan {
 	# Immich runs in a separate compose project; reach via host-published port.
 	reverse_proxy host.docker.internal:2283
 }
+
+http://grafana.g5.lan {
+	# Grafana runs on the Pi; DNS still lands on G5, then we proxy across the LAN.
+	reverse_proxy 192.168.0.104:3000
+}
