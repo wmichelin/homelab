@@ -1,0 +1,6 @@
+[Unit]
+Description=Remount G5 mergerfs after disk hotplug
+After=local-fs.target
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/g5-remount-mergerfs

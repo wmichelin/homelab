@@ -1,0 +1,16 @@
+#!/bin/bash
+# Remount protected mergerfs + media binds after a branch disk returns
+set -e
+sleep 2
+mount -a 2>/dev/null || true
+for m in /mnt/disks/disk-ssd1 /mnt/disks/disk-ssd2 /mnt/disks/disk-wd931 /mnt/disks/disk-hgst1 /mnt/disks/disk-hdd22; do
+  findmnt "$m" >/dev/null 2>&1 || mount "$m" 2>/dev/null || true
+done
+if findmnt /mnt/storage/safe >/dev/null 2>&1; then
+  fusermount -uz /mnt/storage/safe 2>/dev/null || umount -l /mnt/storage/safe 2>/dev/null || true
+fi
+mount /mnt/storage/safe 2>/dev/null || true
+for b in media torrents apps; do
+  findmnt "/mnt/storage/$b" >/dev/null 2>&1 || mount "/mnt/storage/$b" 2>/dev/null || true
+done
+logger -t g5-storage "mergerfs-safe + binds remounted"

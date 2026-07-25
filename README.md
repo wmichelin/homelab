@@ -1,34 +1,69 @@
 # Homelab
 
-Monorepo for home infrastructure: monitoring stack, exporters, and Mac-side tooling.
+Monorepo for home infrastructure: Raspberry Pi monitoring, G5 storage/media stack, exporters, and Mac-side tooling.
 
-## Monitoring stack
+**Canonical clone:** this repo (`github.com/wmichelin/homelab`).  
+**G5 live root:** `~/code/homelab` (deployment checkout). Compat symlinks on G5: `~/networked-storage` → repo root, `~/homelab-exporters` → `apps/exporters`.
 
-Deploy to Raspberry Pi:
+## Layout
+
+| Path | Contents |
+|------|----------|
+| `apps/media-stack/` | Jellyfin, Radarr, Lidarr, qBittorrent, Prowlarr (G5) |
+| `apps/immich/` | Immich + ML / CUDA (G5) |
+| `apps/exporters/` | node-exporter, SMART, docker/netdev textfile metrics (G5) |
+| `infra/storage/` | fstab / SnapRAID / Samba snapshots + setup scripts |
+| `infra/systemd/` | system + user unit files for G5 |
+| `scripts/` | G5 backups, Proton→qBit port sync, unit installer |
+| `docs/` | G5 runbooks |
+| `secrets/` | passwords on G5 only (mode 600, gitignored) |
+| `docker-compose.yml`, `grafana/`, `prometheus/`, … | Pi monitoring stack |
+| `g5-exporters/` | **Deprecated** — use `apps/exporters/` |
+| `apple-photos-export/` | Mac Photos → SnapRAID export tooling |
+| `media-stack`, `immich` | Symlinks into `apps/` (G5 path compat) |
+
+Never commit `.env`, `secrets/`, app config dirs, Immich library/postgres, or textfile `*.prom`.
+
+## Monitoring stack (Raspberry Pi)
+
 ```bash
 ./deploy-to-pi.sh wmichelin raspberrypi.local
 ```
 
-Deploy exporters to G5 (node-exporter, smartctl-exporter, SnapRAID + Docker textfile metrics):
+- Grafana: http://raspberrypi.local:3000 (Homelab → **Homelab Monitoring**)
+- Prometheus targets: http://raspberrypi.local:9090/targets
+
+### G5 exporter notes
+
+- Exporters listen on `192.168.0.54:9100` (node) and `:9633` (SMART).
+- SnapRAID / Docker textfile metrics live under `~/code/homelab/apps/exporters/textfile/` (also `~/homelab-exporters/textfile` via symlink).
+- Immich UI: http://192.168.0.54:2283 — blackbox probes `/api/server/ping`.
+
+Preferred deploy on G5 is `git pull` in `~/code/homelab`, then `docker compose up -d` in the relevant `apps/*` directory. Helper (rsync fallback):
+
 ```bash
 ./deploy-exporters-to-g5.sh g5 wmichelin
 ```
 
-### Access
+## G5 apps
 
-- Grafana: http://raspberrypi.local:3000 (Homelab → **Homelab Monitoring**)
-- Prometheus targets: http://raspberrypi.local:9090/targets
+```bash
+cd ~/code/homelab/apps/media-stack && docker compose ps
+cd ~/code/homelab/apps/immich && docker compose ps
+cd ~/code/homelab/apps/exporters && docker compose ps
+```
 
-### G5 notes
+Copy `.env.example` → `.env` on a fresh host (never commit `.env`).
 
-- Exporters listen on `192.168.0.54:9100` (node) and `:9633` (SMART).
-- SnapRAID status/job metrics and Docker CPU/mem are written under `~/homelab-exporters/textfile/` by user systemd timers.
-- If `snapraid_status_ok` is 0, check `snapraid status` on g5 (currently fails if a configured content dir is missing, e.g. `/mnt/tm/marissa/.snapraid/`).
-- Immich: `~/networked-storage/immich/` on g5, UI at http://192.168.0.54:2283 — blackbox probes `/api/server/ping` (Media stack panel).
+User systemd units:
 
-## Apple Photos export
+```bash
+~/code/homelab/scripts/install-user-units.sh
+```
 
-Mac scripts that export the Photos library to SnapRAID (`/Volumes/safe`) via [osxphotos](https://github.com/RhetTbull/osxphotos), with Live Photo companion `.mov` files in a parallel tree.
+Shares and storage runbooks: `docs/lan-storage.md`. Config-only backups: `docs/backup-google-drive.md`.
+
+## Apple Photos export (Mac)
 
 See [`apple-photos-export/README.md`](apple-photos-export/README.md).
 
@@ -36,5 +71,4 @@ See [`apple-photos-export/README.md`](apple-photos-export/README.md).
 cd apple-photos-export
 cp config.example.env config.env   # once; gitignored
 ./export-photos.sh
-./check-integrity.py               # use osxphotos' python if needed
 ```
