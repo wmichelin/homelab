@@ -75,9 +75,9 @@ services:
       - "${QBIT_BT_PORT:-6881}:${QBIT_BT_PORT:-6881}/udp"
     volumes:
       - ./config/qbittorrent:/config
-      # complete/ stays on HDD for seeding + Radarr hardlinks; incomplete scratches on NVMe
+      # Same HDD for incomplete + complete so finish is a rename (no NVMe fill-up).
+      # /downloads/incomplete is a subdir of the torrents mount (no separate bind).
       - /mnt/disks/disk-hdd22/torrents:/downloads
-      - /var/lib/qbittorrent/incomplete:/downloads/incomplete
     environment:
       - PUID=1000
       - PGID=1000

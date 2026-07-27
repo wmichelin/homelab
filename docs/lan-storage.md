@@ -69,9 +69,8 @@ Prefer `*.g5.lan` (Caddy + Pi DNS — `docs/g5-lan-subdomains.md`). Port URLs st
 Compose: `~/code/homelab/apps/media-stack/docker-compose.yml`  
 Libraries: `/mnt/storage/media/movies`, `…/music`, `…/tv`  
 Downloads:
-- **Incomplete (scratch):** OS NVMe `/var/lib/qbittorrent/incomplete` → container `/downloads/incomplete`
-- **Complete (seed + *arr):** `disk-hdd22` `/mnt/disks/disk-hdd22/torrents/complete` → `/downloads/complete`  
-  (Finish move is a cross-disk copy; Radarr/Sonarr hardlinks from `complete` → `media/movies` or `media/tv` still work.)
+- **Incomplete + complete:** `disk-hdd22` `/mnt/disks/disk-hdd22/torrents/{incomplete,complete}` → `/downloads/{incomplete,complete}` (same disk so finish is a rename; keeps the OS NVMe from filling up). Radarr/Sonarr/Lidarr hardlink from `complete` → `media/...`.
+- **Max active downloads:** capped at **2** in qBittorrent (large UHD remuxes).
 
 ### First-run checklist
 
