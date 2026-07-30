@@ -1,0 +1,19 @@
+# Headscale on the pantry DigitalOcean droplet (shared compute, separate container).
+# Do not run this compose on G5. Use: ./scripts/deploy-headscale-to-droplet.sh
+services:
+  headscale:
+    image: headscale/headscale:0.29.2
+    container_name: headscale
+    restart: unless-stopped
+    command: serve
+    ports:
+      - "127.0.0.1:8081:8080"
+    volumes:
+      - ./config.yaml:/etc/headscale/config.yaml:ro
+      - ./extra-records.json:/etc/headscale/extra-records.json:ro
+      - headscale-data:/var/lib/headscale
+      - headscale-run:/var/run/headscale
+
+volumes:
+  headscale-data:
+  headscale-run:

@@ -57,14 +57,14 @@ Prefer `*.g5.lan` (Caddy + Pi DNS — `docs/g5-lan-subdomains.md`). Port URLs st
 
 | App | Subdomain | Direct |
 |-----|-----------|--------|
-| Hub | http://g5.lan | — |
-| Jellyfin | http://jellyfin.g5.lan | http://192.168.0.54:8096 |
-| Radarr | http://radarr.g5.lan | http://192.168.0.54:7878 |
-| Sonarr | http://sonarr.g5.lan | http://192.168.0.54:8989 |
-| Lidarr | http://lidarr.g5.lan | http://192.168.0.54:8686 |
-| qBittorrent | http://qbittorrent.g5.lan | http://192.168.0.54:8080 (`admin` + secrets) |
-| Prowlarr | http://prowlarr.g5.lan | http://192.168.0.54:9696 |
-| Immich | http://immich.g5.lan | http://192.168.0.54:2283 |
+| Hub | https://g5.lan | — |
+| Jellyfin | https://jellyfin.g5.lan | http://192.168.0.54:8096 |
+| Radarr | https://radarr.g5.lan | http://192.168.0.54:7878 |
+| Sonarr | https://sonarr.g5.lan | http://192.168.0.54:8989 |
+| Lidarr | https://lidarr.g5.lan | http://192.168.0.54:8686 |
+| qBittorrent | https://qbittorrent.g5.lan | http://192.168.0.54:8080 (`admin` + secrets) |
+| Prowlarr | https://prowlarr.g5.lan | http://192.168.0.54:9696 |
+| Immich | https://immich.g5.lan | http://192.168.0.54:2283 |
 
 Compose: `~/code/homelab/apps/media-stack/docker-compose.yml`  
 Libraries: `/mnt/storage/media/movies`, `…/music`, `…/tv`  

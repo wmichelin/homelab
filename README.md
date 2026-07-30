@@ -21,11 +21,13 @@ Never commit `secrets/homelab.env` or materialized `.env` files.
 
 | Path | Contents |
 |------|----------|
-| `apps/media-stack/` | Jellyfin, Radarr, Lidarr, qBittorrent, Prowlarr (G5) |
+| `apps/media-stack/` | Jellyfin, Radarr, Lidarr, qBittorrent, Prowlarr, Caddy (G5) |
+| `apps/headscale/` | Headscale control plane (deployed to pantry DO droplet) |
 | `apps/immich/` | Immich + ML / CUDA (G5) |
 | `apps/exporters/` | node-exporter, SMART, docker/netdev textfile metrics (G5) |
 | `infra/systemd/` | G5 system + user unit files (sole unit source) |
 | `infra/storage/` | fstab/SnapRAID/Samba snapshots + archived setup scripts |
+| `terraform/headscale/` | Optional DO zone mirror + **Namecheap** DNS notes for `hs.waltermichelin.com` |
 | `scripts/` | deploys helpers, backups, Proton→qBit, materialize-env |
 | `secrets/homelab.env` | unified secrets (local only) |
 | `docker-compose.yml`, `grafana/`, `prometheus/`, `systemd/` | Pi monitoring stack |
@@ -41,9 +43,13 @@ Never commit `secrets/homelab.env` or materialized `.env` files.
 ```
 
 - Grafana: http://raspberrypi.local:3000
-- Immich: http://immich.g5.lan (or http://g5.local:2283)
-- Media apps: http://g5.lan hub — see `docs/g5-lan-subdomains.md`
+- Immich: https://immich.g5.lan (or http://g5.local:2283)
+- Media apps: https://g5.lan hub — see `docs/headscale-tailscale.md`
 - G5 exporters: `:9100` (node), `:9633` (SMART)
+
+```bash
+./scripts/deploy-headscale-to-droplet.sh   # Headscale on pantry droplet
+```
 
 ## Apple Photos export (Mac)
 

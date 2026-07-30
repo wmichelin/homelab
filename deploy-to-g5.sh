@@ -154,8 +154,8 @@ fi
 
 echo ""
 echo "G5 deploy (${SCOPE}) complete → ${G5_USER}@${G5_HOST}:${REMOTE_PATH}"
-echo "  Hub:        http://g5.lan  (lan-dns on G5 + Mac resolver — docs/g5-lan-subdomains.md)"
-echo "  Immich:     http://immich.g5.lan  (or http://${G5_HOST}:2283)"
-echo "  Jellyfin:   http://jellyfin.g5.lan  (or http://${G5_HOST}:8096)"
-echo "  Sonarr:     http://sonarr.g5.lan"
+echo "  Hub:        https://g5.lan  (Tailscale MagicDNS — docs/headscale-tailscale.md)"
+echo "  Immich:     https://immich.g5.lan  (or http://${G5_HOST}:2283)"
+echo "  Jellyfin:   https://jellyfin.g5.lan  (or http://${G5_HOST}:8096)"
+echo "  Sonarr:     https://sonarr.g5.lan"
 echo "  node-exp:   http://${G5_HOST}:9100/metrics"

@@ -1,55 +1,64 @@
-# LAN reverse proxy for G5 apps (*.g5.lan → container ports).
-# DNS: g5-lan-dns (dnsmasq) on this host answers *.g5.lan → 192.168.0.54.
-# http:// only — .lan is not a public TLD (no ACME).
+# Tailnet reverse proxy for G5 apps (*.g5.lan → container ports).
+# DNS: Headscale MagicDNS (extra-records.json) → this host's Tailscale IP.
+# TLS: Caddy internal CA (install root on clients — docs/headscale-tailscale.md).
+#
+# Do not port-forward host :80/:443 from the WAN to G5. Public HTTPS for Headscale
+# lives on the pantry droplet (hs.waltermichelin.com) only.
 
-{
-	auto_https off
-}
-
-http://g5.lan {
+g5.lan {
+	tls internal
 	root * /srv
 	file_server
 	encode gzip
 }
 
-http://jellyfin.g5.lan {
+jellyfin.g5.lan {
+	tls internal
 	reverse_proxy jellyfin:8096
 }
 
-http://radarr.g5.lan {
+radarr.g5.lan {
+	tls internal
 	reverse_proxy radarr:7878
 }
 
-http://sonarr.g5.lan {
+sonarr.g5.lan {
+	tls internal
 	reverse_proxy sonarr:8989
 }
 
-http://lidarr.g5.lan {
+lidarr.g5.lan {
+	tls internal
 	reverse_proxy lidarr:8686
 }
 
-http://qbittorrent.g5.lan {
+qbittorrent.g5.lan {
+	tls internal
 	# Keep browser Host so CSRF Origin/Referer match (do not rewrite to upstream).
 	reverse_proxy qbittorrent:8080 {
 		header_up X-Real-IP {remote_host}
 	}
 }
 
-http://prowlarr.g5.lan {
+prowlarr.g5.lan {
+	tls internal
 	reverse_proxy prowlarr:9696
 }
 
-http://immich.g5.lan {
+immich.g5.lan {
+	tls internal
 	# Immich runs in a separate compose project; reach via host-published port.
 	reverse_proxy host.docker.internal:2283
 }
 
-http://grafana.g5.lan {
-	# Grafana runs on the Pi; DNS still lands on G5, then we proxy across the LAN.
+grafana.g5.lan {
+	tls internal
+	# Grafana runs on the Pi; MagicDNS still lands on G5, then we proxy across the LAN.
 	reverse_proxy 192.168.0.104:3000
 }
 
-http://hubitat.g5.lan {
+hubitat.g5.lan {
+	tls internal
 	# Hubitat Elevation hub (separate LAN box).
 	reverse_proxy 192.168.0.61:80
 }

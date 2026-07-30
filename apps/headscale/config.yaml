@@ -1,0 +1,68 @@
+# Headscale control plane (runs on the pantry DO droplet, not G5).
+# Deploy: ./scripts/deploy-headscale-to-droplet.sh
+# Clients: Tailscale app → login server https://hs.waltermichelin.com
+
+server_url: https://hs.waltermichelin.com
+
+listen_addr: 0.0.0.0:8080
+metrics_listen_addr: 127.0.0.1:9090
+
+# Host nginx terminates TLS and proxies to this container.
+trusted_proxies:
+  - 127.0.0.1/32
+
+noise:
+  private_key_path: /var/lib/headscale/noise_private.key
+
+prefixes:
+  v4: 100.64.0.0/10
+  v6: fd7a:115c:a1e0::/48
+  allocation: sequential
+
+derp:
+  server:
+    enabled: false
+  urls:
+    - https://controlplane.tailscale.com/derpmap/default
+  paths: []
+  auto_update_enabled: true
+  update_frequency: 24h
+
+disable_check_updates: true
+
+database:
+  type: sqlite
+  sqlite:
+    path: /var/lib/headscale/db.sqlite
+    write_ahead_log: true
+
+log:
+  level: info
+  format: text
+
+policy:
+  mode: file
+  path: ""
+
+dns:
+  magic_dns: true
+  # Must differ from server_url's domain (waltermichelin.com).
+  base_domain: g5.lan
+  override_local_dns: true
+  nameservers:
+    global:
+      - 1.1.1.1
+      - 1.0.0.1
+  search_domains: []
+  # Service names → G5 Tailscale IP. Edit apps/headscale/extra-records.json
+  # after G5 joins, then redeploy (or bind-mount and let Headscale reload).
+  extra_records_path: /etc/headscale/extra-records.json
+
+unix_socket: /var/run/headscale/headscale.sock
+unix_socket_permission: "0770"
+
+logtail:
+  enabled: false
+
+taildrop:
+  enabled: true

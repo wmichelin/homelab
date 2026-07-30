@@ -1,0 +1,52 @@
+[
+  {
+    "name": "g5.lan",
+    "type": "A",
+    "value": "100.64.0.1"
+  },
+  {
+    "name": "jellyfin.g5.lan",
+    "type": "A",
+    "value": "100.64.0.1"
+  },
+  {
+    "name": "immich.g5.lan",
+    "type": "A",
+    "value": "100.64.0.1"
+  },
+  {
+    "name": "radarr.g5.lan",
+    "type": "A",
+    "value": "100.64.0.1"
+  },
+  {
+    "name": "sonarr.g5.lan",
+    "type": "A",
+    "value": "100.64.0.1"
+  },
+  {
+    "name": "lidarr.g5.lan",
+    "type": "A",
+    "value": "100.64.0.1"
+  },
+  {
+    "name": "prowlarr.g5.lan",
+    "type": "A",
+    "value": "100.64.0.1"
+  },
+  {
+    "name": "qbittorrent.g5.lan",
+    "type": "A",
+    "value": "100.64.0.1"
+  },
+  {
+    "name": "grafana.g5.lan",
+    "type": "A",
+    "value": "100.64.0.1"
+  },
+  {
+    "name": "hubitat.g5.lan",
+    "type": "A",
+    "value": "100.64.0.1"
+  }
+]
