@@ -22,11 +22,12 @@ REMOTE_DIR="/opt/headscale"
 EMAIL="wmichelin@gmail.com"
 
 if [[ -f "$SECRETS" ]]; then
+  # macOS bash process-substitution + set -a is unreliable; eval the KEY= lines.
   # shellcheck disable=SC1090
-  set -a
-  # shellcheck source=/dev/null
-  source <(grep -E '^(DROPLET_HOST|HEADSCALE_DROPLET_HOST)=' "$SECRETS" 2>/dev/null || true)
-  set +a
+  while IFS= read -r line; do
+    [[ -n "$line" ]] || continue
+    eval "$line"
+  done < <(grep -E '^(DROPLET_HOST|HEADSCALE_DROPLET_HOST)=' "$SECRETS" 2>/dev/null || true)
 fi
 
 DROPLET_HOST="${1:-${HEADSCALE_DROPLET_HOST:-${DROPLET_HOST:-}}}"

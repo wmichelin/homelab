@@ -29,3 +29,4 @@ apps/media-stack/config/
 apps/immich/library/
 apps/immich/postgres/
 apps/exporters/textfile/*.prom
+apps/media-stack/caddy/opencode-basicauth.caddy

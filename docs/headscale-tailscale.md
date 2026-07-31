@@ -14,6 +14,7 @@ Pretty names for G5 apps over the tailnet, with private-CA HTTPS.
 | https://qbittorrent.g5.lan | `:8080` |
 | https://grafana.g5.lan | Pi `:3000` (proxied via G5 Caddy → `192.168.0.104`) |
 | https://hubitat.g5.lan | Hubitat hub (proxied via G5 Caddy → `192.168.0.61`) |
+| https://opencode.g5.lan | OpenCode web (host `:4096`, Cursor CLI backend) |
 
 Direct `http://g5.local:<port>` / LAN IPs still work for local debugging. **Browsers need the Tailscale app** — there is no eero/dnsmasq path for `*.g5.lan` anymore.
 

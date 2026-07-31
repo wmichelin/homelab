@@ -24,7 +24,7 @@ done
 set -- "${ARGS[@]+"${ARGS[@]}"}"
 
 SCOPE="${1:-all}"
-if [[ "$SCOPE" != "all" && "$SCOPE" != "exporters" && "$SCOPE" != "media-stack" && "$SCOPE" != "immich" ]]; then
+if [[ "$SCOPE" != "all" && "$SCOPE" != "exporters" && "$SCOPE" != "media-stack" && "$SCOPE" != "immich" && "$SCOPE" != "opencode" ]]; then
   G5_HOST="$SCOPE"
   G5_USER="${2:-wmichelin}"
   REMOTE_PATH="${3:-/home/${G5_USER}/code/homelab}"
@@ -104,9 +104,18 @@ echo "Pushing G5 secrets + materialized app env files..."
 scp -q "$SECRETS" "${G5_USER}@${G5_HOST}:${REMOTE_PATH}/secrets/homelab.env"
 scp -q "${ROOT}/apps/media-stack/.env" "${G5_USER}@${G5_HOST}:${REMOTE_PATH}/apps/media-stack/.env"
 scp -q "${ROOT}/apps/immich/.env" "${G5_USER}@${G5_HOST}:${REMOTE_PATH}/apps/immich/.env"
+if [[ -f "${ROOT}/apps/opencode/.env" ]]; then
+  scp -q "${ROOT}/apps/opencode/.env" "${G5_USER}@${G5_HOST}:${REMOTE_PATH}/apps/opencode/.env"
+fi
+if [[ -f "${ROOT}/apps/media-stack/caddy/opencode-basicauth.caddy" ]]; then
+  scp -q "${ROOT}/apps/media-stack/caddy/opencode-basicauth.caddy" \
+    "${G5_USER}@${G5_HOST}:${REMOTE_PATH}/apps/media-stack/caddy/opencode-basicauth.caddy"
+fi
 remote "chmod 600 '${REMOTE_PATH}/secrets/homelab.env' \
   '${REMOTE_PATH}/apps/media-stack/.env' \
-  '${REMOTE_PATH}/apps/immich/.env'"
+  '${REMOTE_PATH}/apps/immich/.env' \
+  '${REMOTE_PATH}/apps/opencode/.env' \
+  '${REMOTE_PATH}/apps/media-stack/caddy/opencode-basicauth.caddy' 2>/dev/null || true"
 
 install_units() {
   remote "chmod +x '${REMOTE_PATH}/scripts/'*.sh '${REMOTE_PATH}/apps/exporters/scripts/'*.sh 2>/dev/null || true
@@ -132,6 +141,7 @@ case "$SCOPE" in
     compose_up apps/exporters
     compose_up apps/media-stack
     compose_up apps/immich
+    compose_up apps/opencode
     ;;
   exporters)
     install_units
@@ -145,6 +155,10 @@ case "$SCOPE" in
   immich)
     compose_up apps/immich
     ;;
+  opencode)
+    install_units
+    compose_up apps/opencode
+    ;;
 esac
 
 if [[ "$INSTALL_SYSTEM" -eq 1 ]]; then
@@ -155,6 +169,7 @@ fi
 echo ""
 echo "G5 deploy (${SCOPE}) complete → ${G5_USER}@${G5_HOST}:${REMOTE_PATH}"
 echo "  Hub:        https://g5.lan  (Tailscale MagicDNS — docs/headscale-tailscale.md)"
+echo "  OpenCode:   https://opencode.g5.lan  (Cursor CLI backend)"
 echo "  Immich:     https://immich.g5.lan  (or http://${G5_HOST}:2283)"
 echo "  Jellyfin:   https://jellyfin.g5.lan  (or http://${G5_HOST}:8096)"
 echo "  Sonarr:     https://sonarr.g5.lan"

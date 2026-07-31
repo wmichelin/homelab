@@ -715,12 +715,65 @@
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineWidth": 1,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "unit": "decbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "id": 133,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "node_filesystem_size_bytes{job=\"g5-node\",fstype!~\"tmpfs|overlay\",mountpoint=~\"/|/mnt/storage(/.*)?|/mnt/tm/.*|/mnt/disks/.*\"} - node_filesystem_avail_bytes{job=\"g5-node\",fstype!~\"tmpfs|overlay\",mountpoint=~\"/|/mnt/storage(/.*)?|/mnt/tm/.*|/mnt/disks/.*\"}",
+          "legendFormat": "{{mountpoint}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Filesystem usage",
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 25
       },
       "id": 112,
       "title": "G5 \u2014 Disks & SnapRAID",
@@ -759,7 +812,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 19
+        "y": 26
       },
       "id": 113,
       "options": {
@@ -830,7 +883,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 19
+        "y": 26
       },
       "id": 114,
       "options": {
@@ -990,7 +1043,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 33
       },
       "id": 132,
       "options": {
@@ -1174,7 +1227,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 35
+        "y": 42
       },
       "id": 115,
       "options": {
@@ -1248,7 +1301,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 35
+        "y": 42
       },
       "id": 116,
       "options": {
@@ -1322,7 +1375,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 35
+        "y": 42
       },
       "id": 117,
       "options": {
@@ -1382,7 +1435,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 35
+        "y": 42
       },
       "id": 118,
       "options": {
@@ -1437,7 +1490,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 35
+        "y": 42
       },
       "id": 119,
       "options": {
@@ -1481,7 +1534,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 46
       },
       "id": 120,
       "title": "G5 \u2014 Containers",
@@ -1513,7 +1566,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 40
+        "y": 47
       },
       "id": 121,
       "options": {
@@ -1567,7 +1620,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 40
+        "y": 47
       },
       "id": 122,
       "options": {
@@ -1641,7 +1694,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 48
+        "y": 55
       },
       "id": 123,
       "options": {
@@ -1694,7 +1747,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 54
+        "y": 61
       },
       "id": 131,
       "title": "Raspberry Pi",
@@ -1762,7 +1815,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 55
+        "y": 62
       },
       "id": 124,
       "options": {
@@ -1843,7 +1896,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 55
+        "y": 62
       },
       "id": 125,
       "options": {
@@ -1946,7 +1999,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 63
+        "y": 70
       },
       "id": 126,
       "options": {
@@ -2046,7 +2099,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 63
+        "y": 70
       },
       "id": 127,
       "options": {
@@ -2146,7 +2199,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 71
+        "y": 78
       },
       "id": 128,
       "options": {
@@ -2240,7 +2293,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 79
+        "y": 86
       },
       "id": 129,
       "options": {
@@ -2347,7 +2400,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 87
+        "y": 94
       },
       "id": 130,
       "options": {

@@ -1,0 +1,38 @@
+# OpenCode web UI — published :4096 for g5-caddy (opencode.g5.lan).
+# Model backend: Cursor CLI (cursor-agent) via opencode-cursor-agent-proxy.
+services:
+  opencode:
+    build: .
+    image: g5-opencode:local
+    container_name: g5-opencode
+    restart: unless-stopped
+    user: "1000:1000"
+    # Open Project picker is home-scoped; cwd should be a real project path.
+    working_dir: /home/wmichelin/code/homelab
+    ports:
+      - "4096:4096"
+    environment:
+      HOME: /home/wmichelin
+      PATH: /home/wmichelin/.local/share/fnm/aliases/default/bin:/home/wmichelin/.opencode/bin:/home/wmichelin/.local/bin:/usr/local/bin:/usr/bin:/bin
+      OPENCODE_CONFIG: /home/wmichelin/code/homelab/apps/opencode/opencode.json
+      CURSOR_AGENT_BIN: /home/wmichelin/.local/bin/cursor-agent
+      CURSOR_WORKSPACE: /home/wmichelin/code/homelab
+      CURSOR_PROXY_PORT: "32124"
+      BROWSER: "true"
+      # No OPENCODE_SERVER_PASSWORD — EventSource cannot authenticate (blank UI).
+      # Access boundary is Tailscale (opencode.g5.lan). Only one opencode.json:
+      # OPENCODE_CONFIG below. Do not also symlink ~/.config/opencode/opencode.json
+      # to the same file or the cursor-proxy plugin binds twice and dies.
+    volumes:
+      - /home/wmichelin:/home/wmichelin
+    entrypoint: ["/bin/sh", "/home/wmichelin/code/homelab/apps/opencode/entrypoint.sh"]
+    command:
+      - /home/wmichelin/.opencode/bin/opencode
+      - web
+      - --hostname
+      - 0.0.0.0
+      - --port
+      - "4096"
+      - --cors
+      - https://opencode.g5.lan
+      - --pure

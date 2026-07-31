@@ -65,3 +65,21 @@ hubitat.g5.lan {
 	# Hubitat Elevation hub (separate LAN box).
 	reverse_proxy 192.168.0.61:80
 }
+
+opencode.g5.lan {
+	tls internal
+	# No basic_auth. EventSource cannot send Authorization; Caddy (or OpenCode)
+	# basic auth leaves the Web UI blank. Access is Tailscale-only (*.g5.lan).
+	header -Alt-Svc
+	reverse_proxy host.docker.internal:4096 {
+		# Force HTTP/1.1 + unbuffered flush so /global/event SSE stays alive.
+		transport http {
+			versions 1.1
+			read_timeout 0
+			write_timeout 0
+		}
+		flush_interval -1
+		header_up Host {host}
+		header_down X-Accel-Buffering "no"
+	}
+}

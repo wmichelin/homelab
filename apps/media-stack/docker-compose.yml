@@ -104,6 +104,11 @@ services:
     image: caddy:2.10-alpine
     container_name: g5-caddy
     restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      OPENCODE_SERVER_USERNAME: ${OPENCODE_SERVER_USERNAME:-opencode}
+      OPENCODE_PASSWORD_HASH: ${OPENCODE_PASSWORD_HASH:-}
     ports:
       - "80:80"
       - "443:443"

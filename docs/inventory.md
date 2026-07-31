@@ -24,6 +24,7 @@ Where things run and how they are deployed. Operate from the Mac; remotes are rs
 | Component | Location |
 |-----------|----------|
 | Media stack | `apps/media-stack/` (+ `config/` runtime, rsync-excluded); Caddy for `*.g5.lan` |
+| OpenCode | `apps/opencode/` + `opencode-web` user unit; https://opencode.g5.lan |
 | Headscale DNS/TLS | MagicDNS + private CA — `docs/headscale-tailscale.md` |
 | Immich | `apps/immich/` (`library/`, `postgres/` rsync-excluded) |
 | Exporters | `apps/exporters/` (`textfile/*.prom` rsync-excluded) |

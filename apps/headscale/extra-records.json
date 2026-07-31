@@ -48,5 +48,10 @@
     "name": "hubitat.g5.lan",
     "type": "A",
     "value": "100.64.0.1"
+  },
+  {
+    "name": "opencode.g5.lan",
+    "type": "A",
+    "value": "100.64.0.1"
   }
 ]

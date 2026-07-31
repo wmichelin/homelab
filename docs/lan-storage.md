@@ -65,6 +65,7 @@ Prefer `*.g5.lan` (Caddy + Pi DNS — `docs/g5-lan-subdomains.md`). Port URLs st
 | qBittorrent | https://qbittorrent.g5.lan | http://192.168.0.54:8080 (`admin` + secrets) |
 | Prowlarr | https://prowlarr.g5.lan | http://192.168.0.54:9696 |
 | Immich | https://immich.g5.lan | http://192.168.0.54:2283 |
+| OpenCode | https://opencode.g5.lan | http://192.168.0.54:4096 (Tailscale-only; no basic auth) |
 
 Compose: `~/code/homelab/apps/media-stack/docker-compose.yml`  
 Libraries: `/mnt/storage/media/movies`, `…/music`, `…/tv`  

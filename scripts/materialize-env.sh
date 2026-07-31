@@ -65,8 +65,20 @@ materialize_g5() {
   envfile_render "$SRC" "${ROOT}/apps/immich/.env" \
     UPLOAD_LOCATION DB_DATA_LOCATION TZ IMMICH_VERSION \
     DB_PASSWORD DB_USERNAME DB_DATABASE_NAME
+  envfile_render "$SRC" "${ROOT}/apps/opencode/.env" \
+    OPENCODE_SERVER_USERNAME OPENCODE_SERVER_PASSWORD
+  # Caddy loads OPENCODE_PASSWORD_HASH from media-stack/.env (OpenCode itself is open on localhost).
+  local oc_user oc_pass oc_hash
+  oc_user="$(envfile_get "$SRC" OPENCODE_SERVER_USERNAME 2>/dev/null || echo opencode)"
+  oc_pass="$(envfile_get "$SRC" OPENCODE_SERVER_PASSWORD 2>/dev/null || true)"
+  if [[ -n "${oc_pass:-}" ]] && command -v docker >/dev/null; then
+    oc_hash="$(docker run --rm caddy:2.10-alpine caddy hash-password --plaintext "$oc_pass")"
+    envfile_set "${ROOT}/apps/media-stack/.env" OPENCODE_SERVER_USERNAME "$oc_user"
+    envfile_set "${ROOT}/apps/media-stack/.env" OPENCODE_PASSWORD_HASH "$oc_hash"
+  fi
   echo "  ${ROOT}/apps/media-stack/.env"
   echo "  ${ROOT}/apps/immich/.env"
+  echo "  ${ROOT}/apps/opencode/.env"
 }
 
 echo "Materialized (${TARGET}):"

@@ -64,3 +64,4 @@ pip-delete-this-directory.txt
 *.temp
 .tmp/
 .cardputer/
+apps/media-stack/caddy/opencode-basicauth.caddy
