@@ -59,6 +59,7 @@ Prefer `*.g5.lan` (Caddy + Pi DNS — `docs/g5-lan-subdomains.md`). Port URLs st
 |-----|-----------|--------|
 | Hub | https://g5.lan | — |
 | Jellyfin | https://jellyfin.g5.lan | http://192.168.0.54:8096 |
+| Tunarr | https://tunarr.g5.lan | http://192.168.0.54:8000 |
 | Radarr | https://radarr.g5.lan | http://192.168.0.54:7878 |
 | Sonarr | https://sonarr.g5.lan | http://192.168.0.54:8989 |
 | Lidarr | https://lidarr.g5.lan | http://192.168.0.54:8686 |
@@ -75,19 +76,18 @@ Downloads:
 - **Incomplete + complete:** `disk-hdd22` `/mnt/disks/disk-hdd22/torrents/{incomplete,complete}` → `/downloads/{incomplete,complete}` (same disk so finish is a rename; keeps the OS NVMe from filling up). Radarr/Sonarr/Lidarr hardlink from `complete` → `media/...`.
 - **Max active downloads:** capped at **2** in qBittorrent (large UHD remuxes).
 
-### FinTV (virtual Live TV)
+### Tunarr (virtual Live TV)
 
-G5 runs Jellyfin **12.0.0** (`jellyfin/jellyfin:12.0-rc4`) with FinTV **0.0.2.110** (ABI 12 — has the admin UI).
+[Tunarr](https://tunarr.com) runs as `tunarr` in the media-stack (`chrisbenincasa/tunarr:latest`, port **8000**). Config: `apps/media-stack/config/tunarr/`. UI: https://tunarr.g5.lan
+
+Prefer **HDHomeRun** in Jellyfin (more stable than M3U at program boundaries). From inside the compose network:
 
 | Setting | Value |
 |---------|--------|
-| Public Base URL | `http://192.168.0.54:8096` |
-| M3U tuner | `http://127.0.0.1:8096/FinTV/iptv/channels.m3u` |
-| XMLTV guide | `http://127.0.0.1:8096/FinTV/iptv/epg.xml` |
+| HDHR tuner | `http://tunarr:8000` |
+| XMLTV guide | `http://tunarr:8000/api/xmltv.xml` |
 
-Open **Dashboard → Plugins → FinTV** (or the FinTV entry in the admin menu) → **Channels** → **New Channel**, then **Lineups** → rebuild playout → Live TV **Refresh Channels** / **Refresh Guide**.
-
-Plugin path: `apps/media-stack/config/jellyfin/plugins/FinTV/`. Pre-12 backup: `~/backups/jellyfin-pre-12-*` on G5. WeatherStar needs Docker socket + Playwright — not enabled yet.
+LAN equivalents: `http://192.168.0.54:8000` and `…/api/xmltv.xml`. Connect Jellyfin as a media source in Tunarr, create channels, then Live TV **Refresh Channels / Refresh Guide**. `/dev/dri` is passed through for hardware transcoding.
 
 ### First-run checklist
 

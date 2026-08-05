@@ -10,6 +10,11 @@
     "value": "100.64.0.1"
   },
   {
+    "name": "tunarr.g5.lan",
+    "type": "A",
+    "value": "100.64.0.1"
+  },
+  {
     "name": "immich.g5.lan",
     "type": "A",
     "value": "100.64.0.1"

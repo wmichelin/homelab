@@ -1,6 +1,6 @@
 services:
   jellyfin:
-    # Pinned to 12.0 RC for FinTV 0.0.2.x UI (ABI 12). Revisit when 12.0 final ships.
+    # Pinned to 12.0 RC after upgrade; revisit when 12.0 final ships.
     image: jellyfin/jellyfin:12.0-rc4
     container_name: jellyfin
     restart: unless-stopped
@@ -16,7 +16,24 @@ services:
       - TZ=America/New_York
     group_add:
       - "44"   # video
-      - "992"  # render if present — may warn
+      - "990"  # render (G5)
+    devices:
+      - /dev/dri:/dev/dri
+
+  # Virtual Live TV for Jellyfin (HDHR + XMLTV). https://tunarr.com
+  tunarr:
+    image: chrisbenincasa/tunarr:latest
+    container_name: tunarr
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./config/tunarr:/config/tunarr
+    environment:
+      - TZ=America/New_York
+    group_add:
+      - "44"   # video
+      - "990"  # render (G5)
     devices:
       - /dev/dri:/dev/dri
 
@@ -141,6 +158,7 @@ services:
       - "host.docker.internal:host-gateway"
     depends_on:
       - jellyfin
+      - tunarr
       - radarr
       - sonarr
       - lidarr

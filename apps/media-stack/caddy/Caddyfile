@@ -17,6 +17,11 @@ jellyfin.g5.lan {
 	reverse_proxy jellyfin:8096
 }
 
+tunarr.g5.lan {
+	tls internal
+	reverse_proxy tunarr:8000
+}
+
 radarr.g5.lan {
 	tls internal
 	reverse_proxy radarr:7878
