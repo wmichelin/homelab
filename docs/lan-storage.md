@@ -87,7 +87,9 @@ Prefer **HDHomeRun** in Jellyfin (more stable than M3U at program boundaries). F
 | HDHR tuner | `http://tunarr:8000` |
 | XMLTV guide | `http://tunarr:8000/api/xmltv.xml` |
 
-LAN equivalents: `http://192.168.0.54:8000` and `…/api/xmltv.xml`. Connect Jellyfin as a media source in Tunarr, create channels, then Live TV **Refresh Channels / Refresh Guide**. `/dev/dri` is passed through for hardware transcoding.
+LAN equivalents: `http://192.168.0.54:8000` and `…/api/xmltv.xml`. Connect Jellyfin as a media source in Tunarr, create channels, then Live TV **Refresh Channels / Refresh Guide**. NVIDIA GPU (`gpus: all`) is used for CUDA/NVENC; `/dev/dri` is also passed through.
+
+**GPU health:** Docker GPU attach can go stale (`CUDA_ERROR_NO_DEVICE` inside the container while the host GPU is fine). Tunarr has a compose `healthcheck` (`nvidia-smi`); `autoheal` (`willfarrell/autoheal`) restarts labeled unhealthy containers so the GPU rebinds.
 
 ### First-run checklist
 

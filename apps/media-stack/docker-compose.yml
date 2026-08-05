@@ -21,6 +21,8 @@ services:
       - /dev/dri:/dev/dri
 
   # Virtual Live TV for Jellyfin (HDHR + XMLTV). https://tunarr.com
+  # RTX 2060 via NVIDIA Container Toolkit for CUDA/NVENC (faster channel zaps).
+  # GPU healthcheck + autoheal: Docker GPU attach can go stale; restart re-binds it.
   tunarr:
     image: chrisbenincasa/tunarr:latest
     container_name: tunarr
@@ -31,11 +33,38 @@ services:
       - ./config/tunarr:/config/tunarr
     environment:
       - TZ=America/New_York
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
+    gpus: all
     group_add:
       - "44"   # video
       - "990"  # render (G5)
     devices:
       - /dev/dri:/dev/dri
+    labels:
+      autoheal: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "nvidia-smi -L | grep -q GPU"]
+      interval: 60s
+      timeout: 15s
+      retries: 2
+      start_period: 45s
+
+  # Restarts containers labeled autoheal=true when their HEALTHCHECK fails.
+  # https://github.com/willfarrell/docker-autoheal
+  autoheal:
+    image: willfarrell/autoheal:latest
+    container_name: autoheal
+    restart: unless-stopped
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=autoheal
+      - AUTOHEAL_INTERVAL=30
+      - AUTOHEAL_START_PERIOD=60
+      - TZ=America/New_York
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/localtime:/etc/localtime:ro
+    network_mode: none
 
   radarr:
     image: lscr.io/linuxserver/radarr:latest
