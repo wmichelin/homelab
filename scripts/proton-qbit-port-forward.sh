@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Renew Proton VPN NAT-PMP mappings and sync qBittorrent listen port.
-# Bridge-mode Docker: also updates QBIT_BT_PORT and recreates qbittorrent when the
-# forwarded port changes so host publishes match the VPN mapping.
+# Host-network qBittorrent: keep BitTorrent bound to proton0 and record QBIT_BT_PORT
+# in env (no Docker port republish).
 set -euo pipefail
 
 GATEWAY="${PROTON_NATPMP_GATEWAY:-10.2.0.1}"
@@ -100,9 +100,9 @@ qbit_login() {
 
 qbit_set_listen_port() {
   local port="$1"
-  # Clear host-iface binds (needed after any host-network experiments) and set port.
+  # Bind BitTorrent to Proton WireGuard only — no peers if proton0 is down.
   curl -fsS -b "${COOKIE_JAR}" -c "${COOKIE_JAR}" \
-    --data-urlencode "json={\"listen_port\":${port},\"current_network_interface\":\"\",\"current_interface_address\":\"\",\"upnp\":false}" \
+    --data-urlencode "json={\"listen_port\":${port},\"current_network_interface\":\"proton0\",\"current_interface_address\":\"\",\"upnp\":false}" \
     "${QBIT_URL}/api/v2/app/setPreferences" >/dev/null
 }
 
@@ -130,33 +130,15 @@ write_env_bt_port() {
   chmod 600 "${ENV_FILE}" 2>/dev/null || true
 }
 
-recreate_qbittorrent_if_needed() {
+sync_env_bt_port() {
   local port="$1"
   local published
   published="$(read_env_bt_port)"
   if [[ "${published}" == "${port}" ]]; then
-    # Confirm container actually publishes this port.
-    if docker_cmd inspect qbittorrent --format '{{json .HostConfig.PortBindings}}' 2>/dev/null \
-      | grep -q "\"${port}/"; then
-      return 0
-    fi
+    return 0
   fi
-  log "Publishing Docker BT port ${published:-?} -> ${port} (compose recreate)"
+  log "Recording QBIT_BT_PORT ${published:-?} -> ${port} (host net; no compose recreate)"
   write_env_bt_port "${port}"
-  (
-    cd "${COMPOSE_DIR}"
-    docker_cmd compose up -d qbittorrent
-  )
-  # Wait for WebUI after recreate.
-  local i
-  for i in $(seq 1 30); do
-    if curl -fsS -m 2 -o /dev/null "${QBIT_URL}/"; then
-      return 0
-    fi
-    sleep 1
-  done
-  log "WARN: qBittorrent WebUI not ready after recreate"
-  return 1
 }
 
 renew_once() {
@@ -184,7 +166,7 @@ renew_once() {
     printf '%s\n' "${port}" > "/run/user/$(id -u)/Proton/VPN/forwarded_port" 2>/dev/null || true
   fi
 
-  recreate_qbittorrent_if_needed "${port}"
+  sync_env_bt_port "${port}"
 
   local pw
   pw="$(read_password)"
@@ -193,16 +175,17 @@ renew_once() {
     return 1
   fi
 
-  local current
-  current="$(curl -fsS -b "${COOKIE_JAR}" "${QBIT_URL}/api/v2/app/preferences" \
-    | python3 -c 'import json,sys; print(json.load(sys.stdin).get("listen_port",""))')"
-  if [[ "${current}" != "${port}" ]]; then
-    log "Updating qBittorrent listen_port ${current:-?} -> ${port}"
-    qbit_set_listen_port "${port}"
-    qbit_cap_upload_lightly
+  local prefs current iface
+  prefs="$(curl -fsS -b "${COOKIE_JAR}" "${QBIT_URL}/api/v2/app/preferences")"
+  current="$(printf '%s' "${prefs}" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("listen_port",""))')"
+  iface="$(printf '%s' "${prefs}" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("current_network_interface",""))')"
+  if [[ "${current}" != "${port}" || "${iface}" != "proton0" ]]; then
+    log "Updating qBittorrent listen_port/iface ${current:-?}/${iface:-?} -> ${port}/proton0"
   else
-    log "Renewed NAT-PMP mapping for port ${port} (qBittorrent already matches)"
+    log "Renewed NAT-PMP mapping for port ${port} (re-applying proton0 bind)"
   fi
+  qbit_set_listen_port "${port}"
+  qbit_cap_upload_lightly
 }
 
 main() {

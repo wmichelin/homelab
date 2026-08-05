@@ -1,6 +1,7 @@
 services:
   jellyfin:
-    image: jellyfin/jellyfin:latest
+    # Pinned to 12.0 RC for FinTV 0.0.2.x UI (ABI 12). Revisit when 12.0 final ships.
+    image: jellyfin/jellyfin:12.0-rc4
     container_name: jellyfin
     restart: unless-stopped
     ports:
@@ -33,6 +34,8 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=America/New_York
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
@@ -48,6 +51,8 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=America/New_York
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   lidarr:
     image: lscr.io/linuxserver/lidarr:latest
@@ -62,17 +67,17 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=America/New_York
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
     restart: unless-stopped
-    # Bridge + env-mapped BT port so Radarr can reach qBit by service DNS.
-    # proton-qbit-port-forward.sh recreates this service when QBIT_BT_PORT changes.
-    ports:
-      - "8080:8080"
-      - "${QBIT_BT_PORT:-6881}:${QBIT_BT_PORT:-6881}"
-      - "${QBIT_BT_PORT:-6881}:${QBIT_BT_PORT:-6881}/udp"
+    # Host net so BitTorrent can bind to proton0 (VPN kill switch).
+    # WebUI is on host :8080; Caddy reaches it via host.docker.internal.
+    # BT listen port is set by proton-qbit-port-forward.sh (no Docker publish).
+    network_mode: host
     volumes:
       - ./config/qbittorrent:/config
       # Same HDD for incomplete + complete so finish is a rename (no NVMe fill-up).
@@ -97,6 +102,20 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=America/New_York
+    depends_on:
+      - flaresolverr
+
+  # Cloudflare / DDoS-GUARD bypass for Prowlarr indexers (internal only).
+  # Prowlarr → Settings → Indexers → FlareSolverr proxy → http://flaresolverr:8191
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:v3.4.6
+    container_name: flaresolverr
+    restart: unless-stopped
+    environment:
+      - LOG_LEVEL=info
+      - LOG_HTML=false
+      - TZ=America/New_York
+    # No host ports — only reachable on the compose network from Prowlarr.
 
   # Reverse proxy: https://*.g5.lan (Tailscale MagicDNS → this host).
   # DNS/TLS: Headscale + Caddy internal CA — docs/headscale-tailscale.md

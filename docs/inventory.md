@@ -31,6 +31,7 @@ Where things run and how they are deployed. Operate from the Mac; remotes are rs
 | User units | `infra/systemd/user/` via `scripts/install-user-units.sh` |
 | System units / `/usr/local` | `scripts/install-g5-system.sh` or `./deploy-to-g5.sh --system` |
 | Host config snapshots | `infra/storage/` (fstab / snapraid / smb — apply manually) |
+| Proton VPN (torrents egress) | CLI + polkit — [`docs/proton-vpn-g5.md`](proton-vpn-g5.md); `scripts/proton-vpn-fix.sh` |
 | Compat symlinks | `~/networked-storage` → repo; `~/homelab-exporters` → `apps/exporters` |
 
 ## Secrets

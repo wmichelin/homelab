@@ -35,7 +35,7 @@ lidarr.g5.lan {
 qbittorrent.g5.lan {
 	tls internal
 	# Preserve Host; tell qBit the real client + HTTPS scheme (CSRF / auth subnet).
-	reverse_proxy qbittorrent:8080 {
+	reverse_proxy host.docker.internal:8080 {
 		header_up X-Real-IP {remote_host}
 		header_up X-Forwarded-For {remote_host}
 		header_up X-Forwarded-Proto {scheme}

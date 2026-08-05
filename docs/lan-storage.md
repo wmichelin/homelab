@@ -62,16 +62,32 @@ Prefer `*.g5.lan` (Caddy + Pi DNS — `docs/g5-lan-subdomains.md`). Port URLs st
 | Radarr | https://radarr.g5.lan | http://192.168.0.54:7878 |
 | Sonarr | https://sonarr.g5.lan | http://192.168.0.54:8989 |
 | Lidarr | https://lidarr.g5.lan | http://192.168.0.54:8686 |
-| qBittorrent | https://qbittorrent.g5.lan | http://192.168.0.54:8080 (`admin` + secrets) |
+| qBittorrent | https://qbittorrent.g5.lan | http://192.168.0.54:8080 (`admin` + secrets); host net, BT bound to `proton0` — *arr download client host: `host.docker.internal` |
 | Prowlarr | https://prowlarr.g5.lan | http://192.168.0.54:9696 |
 | Immich | https://immich.g5.lan | http://192.168.0.54:2283 |
 | OpenCode | https://opencode.g5.lan | http://192.168.0.54:4096 (Tailscale-only; no basic auth) |
+
+Torrent egress uses **Proton VPN** on the host — see [`docs/proton-vpn-g5.md`](proton-vpn-g5.md). If indexers die with SSL errors but Prowlarr’s UI is up, run `./scripts/proton-vpn-fix.sh recover` on G5.
 
 Compose: `~/code/homelab/apps/media-stack/docker-compose.yml`  
 Libraries: `/mnt/storage/media/movies`, `…/music`, `…/tv`  
 Downloads:
 - **Incomplete + complete:** `disk-hdd22` `/mnt/disks/disk-hdd22/torrents/{incomplete,complete}` → `/downloads/{incomplete,complete}` (same disk so finish is a rename; keeps the OS NVMe from filling up). Radarr/Sonarr/Lidarr hardlink from `complete` → `media/...`.
 - **Max active downloads:** capped at **2** in qBittorrent (large UHD remuxes).
+
+### FinTV (virtual Live TV)
+
+G5 runs Jellyfin **12.0.0** (`jellyfin/jellyfin:12.0-rc4`) with FinTV **0.0.2.110** (ABI 12 — has the admin UI).
+
+| Setting | Value |
+|---------|--------|
+| Public Base URL | `http://192.168.0.54:8096` |
+| M3U tuner | `http://127.0.0.1:8096/FinTV/iptv/channels.m3u` |
+| XMLTV guide | `http://127.0.0.1:8096/FinTV/iptv/epg.xml` |
+
+Open **Dashboard → Plugins → FinTV** (or the FinTV entry in the admin menu) → **Channels** → **New Channel**, then **Lineups** → rebuild playout → Live TV **Refresh Channels** / **Refresh Guide**.
+
+Plugin path: `apps/media-stack/config/jellyfin/plugins/FinTV/`. Pre-12 backup: `~/backups/jellyfin-pre-12-*` on G5. WeatherStar needs Docker socket + Playwright — not enabled yet.
 
 ### First-run checklist
 
@@ -121,6 +137,7 @@ Warning: with 6 data disks, SnapRAID recommends 2 parity levels; we run **1** (s
 ## Related docs
 
 - RDP / remote desktop: [`docs/lan-remote-access.md`](lan-remote-access.md)
+- Proton VPN / torrent egress: [`docs/proton-vpn-g5.md`](proton-vpn-g5.md)
 - Follow-ups: [`docs/lan-unraid-like-followups.md`](lan-unraid-like-followups.md)
 - Inventory: [`docs/inventory.md`](inventory.md)
 - Secrets: `secrets/homelab.env` (from `secrets/homelab.env.example`)

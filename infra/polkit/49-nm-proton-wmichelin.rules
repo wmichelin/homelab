@@ -1,0 +1,12 @@
+// Allow wmichelin to manage NetworkManager connections without a GUI polkit agent.
+// Required for Proton VPN CLI over SSH (kill-switch + WireGuard).
+// Install: sudo ./scripts/proton-vpn-fix.sh install-polkit
+polkit.addRule(function(action, subject) {
+    if (subject.user == "wmichelin" && (
+        action.id == "org.freedesktop.NetworkManager.settings.modify.system" ||
+        action.id == "org.freedesktop.NetworkManager.settings.modify.own" ||
+        action.id == "org.freedesktop.NetworkManager.network-control"
+    )) {
+        return polkit.Result.YES;
+    }
+});
