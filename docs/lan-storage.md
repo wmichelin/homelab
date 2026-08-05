@@ -89,6 +89,8 @@ Prefer **HDHomeRun** in Jellyfin (more stable than M3U at program boundaries). F
 
 LAN equivalents: `http://192.168.0.54:8000` and `…/api/xmltv.xml`. Connect Jellyfin as a media source in Tunarr, create channels, then Live TV **Refresh Channels / Refresh Guide**. NVIDIA GPU (`gpus: all`) is used for CUDA/NVENC; `/dev/dri` is also passed through.
 
+**Seinfeld 24/7** is channel **53** (group `TV`) — all 171 episodes, shuffled, loops continuously.
+
 **GPU health:** Docker GPU attach can go stale (`CUDA_ERROR_NO_DEVICE` inside the container while the host GPU is fine). Tunarr has a compose `healthcheck` (`nvidia-smi`); `autoheal` (`willfarrell/autoheal`) restarts labeled unhealthy containers so the GPU rebinds.
 
 ### First-run checklist
@@ -97,7 +99,7 @@ LAN equivalents: `http://192.168.0.54:8000` and `…/api/xmltv.xml`. Connect Jel
 
 **Your turn:**
 1. Open **Jellyfin** → http://192.168.0.54:8096 — login `wmichelin` (password in secrets).
-2. Open **Radarr** → http://192.168.0.54:7878 — add movies. Prefer quality profile **Ultra-HD** (or **Any (4K preferred)**). Upgrades stay on until Remux-2160p.
+2. Open **Radarr** → http://192.168.0.54:7878 — add movies. Prefer quality profile **4K WEB preferred (1080 OK)** (grabs 1080 if needed, upgrades to WEB 2160p).
 3. Open **Prowlarr** → http://192.168.0.54:9696 — add better indexers (see below).
 4. **qBittorrent** → http://192.168.0.54:8080 — `admin` + password in secrets.
 5. **Mac SMB / TM** — connect shares; reserve `192.168.0.54` on the router if needed.
