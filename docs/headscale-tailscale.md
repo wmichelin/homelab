@@ -12,6 +12,7 @@ Pretty names for G5 apps over the tailnet, with private-CA HTTPS.
 | https://lidarr.g5.lan | `:8686` |
 | https://prowlarr.g5.lan | `:9696` |
 | https://qbittorrent.g5.lan | `:8080` |
+| https://nzbget.g5.lan | `:6789` |
 | https://grafana.g5.lan | Pi `:3000` (proxied via G5 Caddy → `192.168.0.104`) |
 | https://hubitat.g5.lan | Hubitat hub (proxied via G5 Caddy → `192.168.0.61`) |
 | https://opencode.g5.lan | OpenCode web (host `:4096`, Cursor CLI backend) |

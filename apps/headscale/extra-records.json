@@ -45,6 +45,11 @@
     "value": "100.64.0.1"
   },
   {
+    "name": "nzbget.g5.lan",
+    "type": "A",
+    "value": "100.64.0.1"
+  },
+  {
     "name": "grafana.g5.lan",
     "type": "A",
     "value": "100.64.0.1"

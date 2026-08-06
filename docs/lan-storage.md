@@ -64,6 +64,7 @@ Prefer `*.g5.lan` (Caddy + Pi DNS — `docs/g5-lan-subdomains.md`). Port URLs st
 | Sonarr | https://sonarr.g5.lan | http://192.168.0.54:8989 |
 | Lidarr | https://lidarr.g5.lan | http://192.168.0.54:8686 |
 | qBittorrent | https://qbittorrent.g5.lan | http://192.168.0.54:8080 (`admin` + secrets); host net, BT bound to `proton0` — *arr download client host: `host.docker.internal` |
+| NZBGet | https://nzbget.g5.lan | http://192.168.0.54:6789 (`NZBGET_*` in secrets); Usenet via Eweka SSL — not Proton |
 | Prowlarr | https://prowlarr.g5.lan | http://192.168.0.54:9696 |
 | Immich | https://immich.g5.lan | http://192.168.0.54:2283 |
 | OpenCode | https://opencode.g5.lan | http://192.168.0.54:4096 (Tailscale-only; no basic auth) |
@@ -74,6 +75,7 @@ Compose: `~/code/homelab/apps/media-stack/docker-compose.yml`
 Libraries: `/mnt/storage/media/movies`, `…/music`, `…/tv`  
 Downloads:
 - **Incomplete + complete:** `disk-hdd22` `/mnt/disks/disk-hdd22/torrents/{incomplete,complete}` → `/downloads/{incomplete,complete}` (same disk so finish is a rename; keeps the OS NVMe from filling up). Radarr/Sonarr/Lidarr hardlink from `complete` → `media/...`.
+- **Usenet (NZBGet):** `/mnt/disks/disk-hdd22/usenet/{incomplete,complete}` → `/downloads/{incomplete,complete}`. Direct SSL to Eweka (`news.eweka.nl:563`) — not via Proton. NewsLazer (Mac) is a separate desktop client; it does not feed NZBGet. Upload NZBs in the NZBGet WebUI (or add a Newznab indexer later). *arr remote path map: `/downloads/` → `/data/usenet/`.
 - **Max active downloads:** capped at **2** in qBittorrent (large UHD remuxes).
 
 ### Tunarr (virtual Live TV)

@@ -61,7 +61,7 @@ materialize_pi() {
 
 materialize_g5() {
   envfile_render "$SRC" "${ROOT}/apps/media-stack/.env" \
-    WEBUI_PASSWORD QBIT_BT_PORT
+    WEBUI_PASSWORD QBIT_BT_PORT NZBGET_USER NZBGET_PASS
   envfile_render "$SRC" "${ROOT}/apps/immich/.env" \
     UPLOAD_LOCATION DB_DATA_LOCATION TZ IMMICH_VERSION \
     DB_PASSWORD DB_USERNAME DB_DATABASE_NAME
