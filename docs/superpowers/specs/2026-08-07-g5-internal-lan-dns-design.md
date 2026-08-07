@@ -2,7 +2,7 @@
 
 Date: 2026-08-07  
 Host: G5 (`g5` / `g5.local` / `192.168.0.54`)  
-Status: design approved in chat; awaiting implementation plan
+Status: implemented (Caddy + docs deployed; Flint DNS is operator step)
 
 ## Goal
 
