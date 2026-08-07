@@ -93,6 +93,8 @@ LAN equivalents: `http://192.168.0.54:8000` and `…/api/xmltv.xml`. Connect Jel
 
 **Seinfeld 24/7** is channel **53** (group `TV`) — all 171 episodes, shuffled, loops continuously.
 
+**Sitcoms Shuffle** is channel **54** (group `TV`) — equal-weight mix of Seinfeld, Friends, and The Office (US), shuffled within each show. Re-seed: `python3 scripts/tunarr-seed-sitcoms-shuffle.py` on G5, then Jellyfin Live TV → Refresh Channels / Guide.
+
 **GPU health:** Docker GPU attach can go stale (`CUDA_ERROR_NO_DEVICE` inside the container while the host GPU is fine). Tunarr has a compose `healthcheck` (`nvidia-smi`); `autoheal` (`willfarrell/autoheal`) restarts labeled unhealthy containers so the GPU rebinds.
 
 ### First-run checklist
