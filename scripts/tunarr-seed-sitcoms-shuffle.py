@@ -156,9 +156,7 @@ def main() -> None:
     existing = find_channel()
     if existing:
         cid = existing["id"]
-        body = channel_body(cid)
-        api("PUT", f"/channels/{cid}", {"channel": body})
-        print(f"Updated #{CHANNEL_NUMBER} {CHANNEL_NAME} ({cid})")
+        print(f"Found #{CHANNEL_NUMBER} {CHANNEL_NAME} ({cid}) — refreshing schedule")
     else:
         body = channel_body()
         created = api("POST", "/channels", {"type": "new", "channel": body})
