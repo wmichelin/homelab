@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>g5.lan</title>
+  <title>g5</title>
   <style>
     :root {
       --bg: #0f1419;
@@ -56,23 +56,38 @@
 </head>
 <body>
   <main>
-    <h1>g5.lan</h1>
+    <h1 id="hub-title">g5</h1>
     <p>Homelab apps on this host.</p>
-    <ul>
-      <li><a href="https://jellyfin.g5.lan">Jellyfin <span>media</span></a></li>
-      <li><a href="https://tunarr.g5.lan">Tunarr <span>live TV</span></a></li>
-      <li><a href="https://immich.g5.lan">Immich <span>photos</span></a></li>
-      <li><a href="https://radarr.g5.lan">Radarr <span>movies</span></a></li>
-      <li><a href="https://sonarr.g5.lan">Sonarr <span>tv</span></a></li>
-      <li><a href="https://lidarr.g5.lan">Lidarr <span>music</span></a></li>
-      <li><a href="https://prowlarr.g5.lan">Prowlarr <span>indexers</span></a></li>
-      <li><a href="https://seerr.g5.lan">Seerr <span>requests</span></a></li>
-      <li><a href="https://qbittorrent.g5.lan">qBittorrent <span>downloads</span></a></li>
-      <li><a href="https://nzbget.g5.lan">NZBGet <span>usenet</span></a></li>
-      <li><a href="https://grafana.g5.lan/d/homelab-monitoring/homelab-monitoring">Grafana <span>pi / monitoring</span></a></li>
-      <li><a href="https://hubitat.g5.lan">Hubitat <span>home automation</span></a></li>
-      <li><a href="https://opencode.g5.lan">OpenCode <span>coding agent</span></a></li>
-    </ul>
+    <ul id="hub-links"></ul>
   </main>
+  <script>
+    (function () {
+      var root = location.hostname.endsWith(".internal") ? "g5.internal" : "g5.lan";
+      document.getElementById("hub-title").textContent = root;
+      document.title = root;
+      var apps = [
+        ["jellyfin", "Jellyfin", "media"],
+        ["tunarr", "Tunarr", "live TV"],
+        ["immich", "Immich", "photos"],
+        ["radarr", "Radarr", "movies"],
+        ["sonarr", "Sonarr", "tv"],
+        ["lidarr", "Lidarr", "music"],
+        ["prowlarr", "Prowlarr", "indexers"],
+        ["seerr", "Seerr", "requests"],
+        ["qbittorrent", "qBittorrent", "downloads"],
+        ["nzbget", "NZBGet", "usenet"],
+        ["grafana", "Grafana", "pi / monitoring", "/d/homelab-monitoring/homelab-monitoring"],
+        ["hubitat", "Hubitat", "home automation"],
+        ["opencode", "OpenCode", "coding agent"]
+      ];
+      var ul = document.getElementById("hub-links");
+      apps.forEach(function (a) {
+        var href = "https://" + a[0] + "." + root + (a[3] || "");
+        var li = document.createElement("li");
+        li.innerHTML = '<a href="' + href + '">' + a[1] + " <span>" + a[2] + "</span></a>";
+        ul.appendChild(li);
+      });
+    })();
+  </script>
 </body>
 </html>
