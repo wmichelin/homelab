@@ -6,8 +6,8 @@ Where things run and how they are deployed. Operate from the Mac; remotes are rs
 |------|------|-------------|--------|
 | Mac | Source of truth (git + `secrets/homelab.env`) | `~/code/homelab` | — |
 | Pi (`pi` / raspberrypi.local / 192.168.0.104) | Prometheus, Grafana, exporters, Hubitat, Pantry | `~/homelab` | `./deploy-to-pi.sh` |
-| G5 (`g5` / `g5.local` / 192.168.0.54) | Media, Immich, exporters, SnapRAID/Samba, **Caddy (`*.g5.lan` HTTPS)** | `~/code/homelab` | `./deploy-to-g5.sh` |
-| Hubitat (192.168.0.61) | Home automation hub | (vendor firmware) | `https://hubitat.g5.lan` via G5 Caddy; blackbox + `hubitat-exporter` on Pi |
+| G5 (`g5` / `g5.local` / 192.168.0.54) | Media, Immich, exporters, SnapRAID/Samba, **Caddy (`*.g5.lan` + `*.g5.internal` HTTPS)** | `~/code/homelab` | `./deploy-to-g5.sh` |
+| Hubitat (192.168.0.61) | Home automation hub | (vendor firmware) | `https://hubitat.g5.internal` / `https://hubitat.g5.lan` via G5 Caddy; blackbox + `hubitat-exporter` on Pi |
 | DO droplet (shared with Pantry) | **Headscale** control plane (`hs.waltermichelin.com`) | `/opt/headscale` | `./scripts/deploy-headscale-to-droplet.sh` |
 
 ## Pi
@@ -23,9 +23,9 @@ Where things run and how they are deployed. Operate from the Mac; remotes are rs
 
 | Component | Location |
 |-----------|----------|
-| Media stack | `apps/media-stack/` (+ `config/` runtime, rsync-excluded); Caddy for `*.g5.lan` |
-| OpenCode | `apps/opencode/` + `opencode-web` user unit; https://opencode.g5.lan |
-| Headscale DNS/TLS | MagicDNS + private CA — `docs/headscale-tailscale.md` |
+| Media stack | `apps/media-stack/` (+ `config/` runtime, rsync-excluded); Caddy for `*.g5.lan` + `*.g5.internal` |
+| OpenCode | `apps/opencode/` + `opencode-web` user unit; https://opencode.g5.internal / https://opencode.g5.lan |
+| Headscale / Flint DNS/TLS | MagicDNS (`*.g5.lan`) + Flint (`*.g5.internal`) + private CA — `docs/headscale-tailscale.md` |
 | Immich | `apps/immich/` (`library/`, `postgres/` rsync-excluded) |
 | Exporters | `apps/exporters/` (`textfile/*.prom` rsync-excluded) |
 | User units | `infra/systemd/user/` via `scripts/install-user-units.sh` |

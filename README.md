@@ -42,9 +42,9 @@ Never commit `secrets/homelab.env` or materialized `.env` files.
 ./deploy-to-g5.sh --system        # also install /usr/local + system units (sudo on G5)
 ```
 
-- Grafana: http://raspberrypi.local:3000
-- Immich: https://immich.g5.lan (or http://g5.local:2283)
-- Media apps: https://g5.lan hub — see `docs/headscale-tailscale.md`
+- Grafana: http://raspberrypi.local:3000 (or https://grafana.g5.internal)
+- Immich: https://immich.g5.internal (LAN) / https://immich.g5.lan (Tailscale) / http://g5.local:2283
+- Media apps: https://g5.internal hub (LAN) or https://g5.lan (Tailscale) — see `docs/headscale-tailscale.md`
 - G5 exporters: `:9100` (node), `:9633` (SMART)
 
 ```bash

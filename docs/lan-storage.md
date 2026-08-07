@@ -53,21 +53,22 @@ User: `wmichelin` (password in `~/code/homelab/secrets/homelab.env` → `SMB_PAS
 
 ## Media apps (LAN browser)
 
-Prefer `*.g5.lan` (Caddy + Pi DNS — `docs/g5-lan-subdomains.md`). Port URLs still work.
+Prefer **`*.g5.internal`** on the home LAN (Flint DNS + Caddy — `docs/headscale-tailscale.md`). Use **`*.g5.lan`** over Tailscale. Port URLs still work.
 
-| App | Subdomain | Direct |
-|-----|-----------|--------|
-| Hub | https://g5.lan | — |
-| Jellyfin | https://jellyfin.g5.lan | http://192.168.0.54:8096 |
-| Tunarr | https://tunarr.g5.lan | http://192.168.0.54:8000 |
-| Radarr | https://radarr.g5.lan | http://192.168.0.54:7878 |
-| Sonarr | https://sonarr.g5.lan | http://192.168.0.54:8989 |
-| Lidarr | https://lidarr.g5.lan | http://192.168.0.54:8686 |
-| qBittorrent | https://qbittorrent.g5.lan | http://192.168.0.54:8080 (`admin` + secrets); host net, BT bound to `proton0` — *arr download client host: `host.docker.internal` |
-| NZBGet | https://nzbget.g5.lan | http://192.168.0.54:6789 (`NZBGET_*` in secrets); Usenet via Eweka SSL — not Proton |
-| Prowlarr | https://prowlarr.g5.lan | http://192.168.0.54:9696 |
-| Immich | https://immich.g5.lan | http://192.168.0.54:2283 |
-| OpenCode | https://opencode.g5.lan | http://192.168.0.54:4096 (Tailscale-only; no basic auth) |
+| App | LAN | Tailscale | Direct |
+|-----|-----|-----------|--------|
+| Hub | https://g5.internal | https://g5.lan | — |
+| Jellyfin | https://jellyfin.g5.internal | https://jellyfin.g5.lan | http://192.168.0.54:8096 |
+| Tunarr | https://tunarr.g5.internal | https://tunarr.g5.lan | http://192.168.0.54:8000 |
+| Radarr | https://radarr.g5.internal | https://radarr.g5.lan | http://192.168.0.54:7878 |
+| Sonarr | https://sonarr.g5.internal | https://sonarr.g5.lan | http://192.168.0.54:8989 |
+| Lidarr | https://lidarr.g5.internal | https://lidarr.g5.lan | http://192.168.0.54:8686 |
+| qBittorrent | https://qbittorrent.g5.internal | https://qbittorrent.g5.lan | http://192.168.0.54:8080 (`admin` + secrets); host net, BT bound to `proton0` — *arr download client host: `host.docker.internal` |
+| NZBGet | https://nzbget.g5.internal | https://nzbget.g5.lan | http://192.168.0.54:6789 (`NZBGET_*` in secrets); Usenet via Eweka SSL — not Proton |
+| Prowlarr | https://prowlarr.g5.internal | https://prowlarr.g5.lan | http://192.168.0.54:9696 |
+| Seerr | https://seerr.g5.internal | https://seerr.g5.lan | http://192.168.0.54:5055 |
+| Immich | https://immich.g5.internal | https://immich.g5.lan | http://192.168.0.54:2283 |
+| OpenCode | https://opencode.g5.internal | https://opencode.g5.lan | http://192.168.0.54:4096 (no basic auth; Tailscale or LAN HTTPS) |
 
 Torrent egress uses **Proton VPN** on the host — see [`docs/proton-vpn-g5.md`](proton-vpn-g5.md). If indexers die with SSL errors but Prowlarr’s UI is up, run `./scripts/proton-vpn-fix.sh recover` on G5.
 
@@ -80,7 +81,7 @@ Downloads:
 
 ### Tunarr (virtual Live TV)
 
-[Tunarr](https://tunarr.com) runs as `tunarr` in the media-stack (`chrisbenincasa/tunarr:latest`, port **8000**). Config: `apps/media-stack/config/tunarr/`. UI: https://tunarr.g5.lan
+[Tunarr](https://tunarr.com) runs as `tunarr` in the media-stack (`chrisbenincasa/tunarr:latest`, port **8000**). Config: `apps/media-stack/config/tunarr/`. UI: https://tunarr.g5.internal (or https://tunarr.g5.lan)
 
 Prefer **HDHomeRun** in Jellyfin (more stable than M3U at program boundaries). From inside the compose network:
 

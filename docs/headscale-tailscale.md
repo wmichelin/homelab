@@ -16,16 +16,36 @@ Pretty names for G5 apps over the tailnet, with private-CA HTTPS.
 | https://grafana.g5.lan | Pi `:3000` (proxied via G5 Caddy → `192.168.0.104`) |
 | https://hubitat.g5.lan | Hubitat hub (proxied via G5 Caddy → `192.168.0.61`) |
 | https://opencode.g5.lan | OpenCode web (host `:4096`, Cursor CLI backend) |
+| https://seerr.g5.lan | Seerr (`:5055`) |
 
-Direct `http://g5.local:<port>` / LAN IPs still work for local debugging. **Browsers need the Tailscale app** — there is no eero/dnsmasq path for `*.g5.lan` anymore.
+Direct `http://g5.local:<port>` / LAN IPs still work for local debugging. **`*.g5.lan` needs the Tailscale app** (MagicDNS). On the home LAN prefer **`*.g5.internal`** (Flint DNS — see below).
+
+## LAN twin (`*.g5.internal`)
+
+Same Caddy sites also answer on **`*.g5.internal`**, resolved by **Flint dnsmasq** to G5’s LAN IP (`192.168.0.54`). No Tailscale required; works if the internet is down (Flint + G5 up).
+
+On Flint (SSH as root):
+
+```bash
+uci add_list dhcp.@dnsmasq[0].address='/g5.internal/192.168.0.54'
+uci commit dhcp
+service dnsmasq restart
+```
+
+Or LuCI: **SYSTEM → Advanced Settings → LuCI → Network → DHCP and DNS** (Addresses).
+
+Verify: `dig jellyfin.g5.internal @192.168.0.1` → `192.168.0.54`.
+
+DHCP clients must use Flint (`192.168.0.1`) as DNS. Headscale `extra-records.json` stays `*.g5.lan` only.
 
 ## Pieces
 
 | Where | What |
 |-------|------|
 | **DO droplet** (shared with Pantry) | Headscale container + nginx vhost `hs.waltermichelin.com` (public LE) |
-| **G5** | Tailscale node + Caddy `:443` (`tls internal`) for `*.g5.lan` |
-| **Clients** | Tailscale app → login server `https://hs.waltermichelin.com` |
+| **G5** | Tailscale node + Caddy `:443` (`tls internal`) for `*.g5.lan` and `*.g5.internal` |
+| **Flint** | dnsmasq `address=/g5.internal/192.168.0.54` for LAN names |
+| **Clients** | Tailscale app → login server `https://hs.waltermichelin.com` (for `*.g5.lan`); LAN DNS via Flint for `*.g5.internal` |
 
 Homelab owns Headscale config/deploy (`apps/headscale/`, `scripts/deploy-headscale-to-droplet.sh`). Pantry and `waltermichelin.com` repos are untouched. Public DNS for `hs` is a **Namecheap** A record (see [`terraform/headscale/README.md`](../terraform/headscale/README.md)).
 
