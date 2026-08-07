@@ -53,6 +53,11 @@ prowlarr.g5.lan {
 	reverse_proxy prowlarr:9696
 }
 
+seerr.g5.lan {
+	tls internal
+	reverse_proxy seerr:5055
+}
+
 immich.g5.lan {
 	tls internal
 	# Immich runs in a separate compose project; reach via host-published port.
