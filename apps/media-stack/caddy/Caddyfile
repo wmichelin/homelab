@@ -58,6 +58,11 @@ nzbget.g5.lan {
 	reverse_proxy nzbget:6789
 }
 
+seerr.g5.lan {
+	tls internal
+	reverse_proxy seerr:5055
+}
+
 immich.g5.lan {
 	tls internal
 	# Immich runs in a separate compose project; reach via host-published port.

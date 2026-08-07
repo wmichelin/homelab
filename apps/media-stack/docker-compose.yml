@@ -180,6 +180,32 @@ services:
       - TZ=America/New_York
     # No host ports — only reachable on the compose network from Prowlarr.
 
+  # Media discovery + request management for Jellyfin/Radarr/Sonarr. https://seerr.dev
+  # Successor to Overseerr/Jellyseerr. Runs as non-root (UID 1000) and no longer ships
+  # its own init process, so init: true is required. Config lives at /app/config.
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    container_name: seerr
+    restart: unless-stopped
+    init: true
+    ports:
+      - "5055:5055"
+    volumes:
+      - ./config/seerr:/app/config
+    environment:
+      - TZ=America/New_York
+      - PORT=5055
+    depends_on:
+      - jellyfin
+      - radarr
+      - sonarr
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1"]
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
+
   # Reverse proxy: https://*.g5.lan (Tailscale MagicDNS → this host).
   # DNS/TLS: Headscale + Caddy internal CA — docs/headscale-tailscale.md
   caddy:
@@ -211,6 +237,7 @@ services:
       - qbittorrent
       - nzbget
       - prowlarr
+      - seerr
 
 volumes:
   caddy-data:
