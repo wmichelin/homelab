@@ -1,9 +1,12 @@
 from prometheus_client import start_http_server, Gauge
+import logging
+import os
 import psutil
-import time
 import speedtest
 import threading
-import logging
+import time
+import urllib.request
+from typing import Tuple
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -20,6 +23,12 @@ NETWORK_PACKETS_RECV = Gauge('network_packets_recv', 'Total packets received')
 NETWORK_ERRORS_IN = Gauge('network_errors_in', 'Total incoming errors')
 NETWORK_ERRORS_OUT = Gauge('network_errors_out', 'Total outgoing errors')
 
+# Cap payload + run rarely. Mbps = (bytes * 8 / elapsed) — short sample, extrapolated rate.
+SPEEDTEST_INTERVAL_SEC = int(os.environ.get("SPEEDTEST_INTERVAL_SEC", "3600"))
+SPEEDTEST_SAMPLE_BYTES = int(os.environ.get("SPEEDTEST_SAMPLE_BYTES", str(8 * 1024 * 1024)))
+SPEEDTEST_TIMEOUT_SEC = int(os.environ.get("SPEEDTEST_TIMEOUT_SEC", "20"))
+
+
 def get_network_stats():
     """Get basic network statistics using psutil"""
     net_io = psutil.net_io_counters()
@@ -30,42 +39,102 @@ def get_network_stats():
     NETWORK_ERRORS_IN.set(net_io.errin)
     NETWORK_ERRORS_OUT.set(net_io.errout)
 
+
+def _mbps(num_bytes: int, elapsed: float) -> float:
+    if elapsed <= 0 or num_bytes <= 0:
+        return 0.0
+    return (num_bytes * 8) / elapsed / 1_000_000
+
+
+def sample_download_mbps(best_url: str, sample_bytes: int, timeout: int) -> Tuple[float, int]:
+    """Pull up to sample_bytes from the Ookla server and extrapolate Mbps."""
+    base = best_url.rsplit("/", 1)[0]
+    # 4000x4000 random JPEG is large enough to fill an 8MiB sample on one connection.
+    url = f"{base}/random4000x4000.jpg"
+    req = urllib.request.Request(url, headers={"User-Agent": "homelab-network-exporter/1.0"})
+    total = 0
+    start = time.perf_counter()
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        while total < sample_bytes:
+            chunk = resp.read(min(64 * 1024, sample_bytes - total))
+            if not chunk:
+                break
+            total += len(chunk)
+    elapsed = time.perf_counter() - start
+    return _mbps(total, elapsed), total
+
+
+def sample_upload_mbps(best_url: str, sample_bytes: int, timeout: int) -> Tuple[float, int]:
+    """POST a fixed buffer to the Ookla upload endpoint and extrapolate Mbps."""
+    payload = os.urandom(sample_bytes)
+    req = urllib.request.Request(
+        best_url,
+        data=payload,
+        method="POST",
+        headers={
+            "User-Agent": "homelab-network-exporter/1.0",
+            "Content-Type": "application/octet-stream",
+            "Content-Length": str(len(payload)),
+        },
+    )
+    start = time.perf_counter()
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        resp.read()
+    elapsed = time.perf_counter() - start
+    return _mbps(len(payload), elapsed), len(payload)
+
+
 def run_speedtest():
-    """Run speedtest and update metrics"""
+    """Pick a nearby Ookla server, transfer a small fixed sample, publish Mbps."""
     while True:
         try:
-            logger.info("Running speedtest...")
+            logger.info(
+                "Running capped speed sample (%s bytes, timeout=%ss)...",
+                SPEEDTEST_SAMPLE_BYTES,
+                SPEEDTEST_TIMEOUT_SEC,
+            )
             st = speedtest.Speedtest()
-            st.get_best_server()
-            
-            download_speed = st.download() / 1_000_000  # Convert to Mbps
-            upload_speed = st.upload() / 1_000_000  # Convert to Mbps
-            latency = st.results.ping
-            
+            best = st.get_best_server()
+            latency = float(best.get("latency") or st.results.ping or 0)
+            best_url = best["url"]
+
+            download_speed, dl_bytes = sample_download_mbps(
+                best_url, SPEEDTEST_SAMPLE_BYTES, SPEEDTEST_TIMEOUT_SEC
+            )
+            upload_speed, ul_bytes = sample_upload_mbps(
+                best_url, SPEEDTEST_SAMPLE_BYTES, SPEEDTEST_TIMEOUT_SEC
+            )
+
             NETWORK_SPEED_DOWNLOAD.set(download_speed)
             NETWORK_SPEED_UPLOAD.set(upload_speed)
             NETWORK_LATENCY.set(latency)
-            
-            logger.info(f"Speedtest results - Download: {download_speed:.2f} Mbps, Upload: {upload_speed:.2f} Mbps, Latency: {latency:.2f} ms")
+
+            logger.info(
+                "Speed sample - Download: %.2f Mbps (%s bytes), Upload: %.2f Mbps (%s bytes), Latency: %.2f ms",
+                download_speed,
+                dl_bytes,
+                upload_speed,
+                ul_bytes,
+                latency,
+            )
         except Exception as e:
-            logger.error(f"Error running speedtest: {e}")
-        
-        time.sleep(300)  # Run speedtest every 5 minutes
+            logger.error("Error running speedtest: %s", e)
+
+        time.sleep(SPEEDTEST_INTERVAL_SEC)
+
 
 def main():
-    # Start the HTTP server
     start_http_server(9101)
     logger.info("Network metrics exporter started on port 9101")
-    
-    # Start speedtest in a separate thread
+
     speedtest_thread = threading.Thread(target=run_speedtest)
     speedtest_thread.daemon = True
     speedtest_thread.start()
-    
-    # Main loop for basic network stats
+
     while True:
         get_network_stats()
-        time.sleep(15)  # Update basic stats every 15 seconds
+        time.sleep(15)
 
-if __name__ == '__main__':
-    main() 
+
+if __name__ == "__main__":
+    main()

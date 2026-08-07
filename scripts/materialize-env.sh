@@ -72,9 +72,12 @@ materialize_g5() {
   oc_user="$(envfile_get "$SRC" OPENCODE_SERVER_USERNAME 2>/dev/null || echo opencode)"
   oc_pass="$(envfile_get "$SRC" OPENCODE_SERVER_PASSWORD 2>/dev/null || true)"
   if [[ -n "${oc_pass:-}" ]] && command -v docker >/dev/null; then
-    oc_hash="$(docker run --rm caddy:2.10-alpine caddy hash-password --plaintext "$oc_pass")"
-    envfile_set "${ROOT}/apps/media-stack/.env" OPENCODE_SERVER_USERNAME "$oc_user"
-    envfile_set "${ROOT}/apps/media-stack/.env" OPENCODE_PASSWORD_HASH "$oc_hash"
+    if oc_hash="$(docker run --rm caddy:2.10-alpine caddy hash-password --plaintext "$oc_pass" 2>/dev/null)"; then
+      envfile_set "${ROOT}/apps/media-stack/.env" OPENCODE_SERVER_USERNAME "$oc_user"
+      envfile_set "${ROOT}/apps/media-stack/.env" OPENCODE_PASSWORD_HASH "$oc_hash"
+    else
+      echo "  warn: docker unavailable — skipped OPENCODE_PASSWORD_HASH refresh" >&2
+    fi
   fi
   echo "  ${ROOT}/apps/media-stack/.env"
   echo "  ${ROOT}/apps/immich/.env"

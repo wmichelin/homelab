@@ -52,6 +52,11 @@ services:
     container_name: network-exporter
     ports:
       - "9101:9101"
+    environment:
+      # ~8MiB down + 8MiB up once an hour; Mbps extrapolated from that sample.
+      - SPEEDTEST_INTERVAL_SEC=3600
+      - SPEEDTEST_SAMPLE_BYTES=8388608
+      - SPEEDTEST_TIMEOUT_SEC=20
     restart: unless-stopped
 
   process-exporter:
