@@ -1,4 +1,4 @@
-# OpenCode web UI — published :4096 for g5-caddy (opencode.g5.lan).
+# OpenCode web UI — published :4096 for g5-caddy (opencode.g5.lan / opencode.g5.internal).
 # Model backend: Cursor CLI (cursor-agent) via opencode-cursor-agent-proxy.
 services:
   opencode:
@@ -20,9 +20,10 @@ services:
       CURSOR_PROXY_PORT: "32124"
       BROWSER: "true"
       # No OPENCODE_SERVER_PASSWORD — EventSource cannot authenticate (blank UI).
-      # Access boundary is Tailscale (opencode.g5.lan). Only one opencode.json:
-      # OPENCODE_CONFIG below. Do not also symlink ~/.config/opencode/opencode.json
-      # to the same file or the cursor-proxy plugin binds twice and dies.
+      # Access via Tailscale (opencode.g5.lan) or LAN (opencode.g5.internal).
+      # Only one opencode.json: OPENCODE_CONFIG below. Do not also symlink
+      # ~/.config/opencode/opencode.json to the same file or the cursor-proxy
+      # plugin binds twice and dies.
     volumes:
       - /home/wmichelin:/home/wmichelin
     entrypoint: ["/bin/sh", "/home/wmichelin/code/homelab/apps/opencode/entrypoint.sh"]
@@ -35,4 +36,6 @@ services:
       - "4096"
       - --cors
       - https://opencode.g5.lan
+      - --cors
+      - https://opencode.g5.internal
       - --pure
