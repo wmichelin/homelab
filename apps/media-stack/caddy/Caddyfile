@@ -1,43 +1,44 @@
-# Tailnet reverse proxy for G5 apps (*.g5.lan → container ports).
-# DNS: Headscale MagicDNS (extra-records.json) → this host's Tailscale IP.
-# TLS: Caddy internal CA (install root on clients — docs/headscale-tailscale.md).
+# Reverse proxy for G5 apps.
+# - *.g5.lan     → Headscale MagicDNS (Tailscale IP)
+# - *.g5.internal → Flint dnsmasq → LAN IP 192.168.0.54
+# TLS: Caddy internal CA (docs/headscale-tailscale.md).
 #
 # Do not port-forward host :80/:443 from the WAN to G5. Public HTTPS for Headscale
 # lives on the pantry droplet (hs.waltermichelin.com) only.
 
-g5.lan {
+g5.lan, g5.internal {
 	tls internal
 	root * /srv
 	file_server
 	encode gzip
 }
 
-jellyfin.g5.lan {
+jellyfin.g5.lan, jellyfin.g5.internal {
 	tls internal
 	reverse_proxy jellyfin:8096
 }
 
-tunarr.g5.lan {
+tunarr.g5.lan, tunarr.g5.internal {
 	tls internal
 	reverse_proxy tunarr:8000
 }
 
-radarr.g5.lan {
+radarr.g5.lan, radarr.g5.internal {
 	tls internal
 	reverse_proxy radarr:7878
 }
 
-sonarr.g5.lan {
+sonarr.g5.lan, sonarr.g5.internal {
 	tls internal
 	reverse_proxy sonarr:8989
 }
 
-lidarr.g5.lan {
+lidarr.g5.lan, lidarr.g5.internal {
 	tls internal
 	reverse_proxy lidarr:8686
 }
 
-qbittorrent.g5.lan {
+qbittorrent.g5.lan, qbittorrent.g5.internal {
 	tls internal
 	# Preserve Host; tell qBit the real client + HTTPS scheme (CSRF / auth subnet).
 	reverse_proxy host.docker.internal:8080 {
@@ -48,43 +49,43 @@ qbittorrent.g5.lan {
 	}
 }
 
-prowlarr.g5.lan {
+prowlarr.g5.lan, prowlarr.g5.internal {
 	tls internal
 	reverse_proxy prowlarr:9696
 }
 
-nzbget.g5.lan {
+nzbget.g5.lan, nzbget.g5.internal {
 	tls internal
 	reverse_proxy nzbget:6789
 }
 
-seerr.g5.lan {
+seerr.g5.lan, seerr.g5.internal {
 	tls internal
 	reverse_proxy seerr:5055
 }
 
-immich.g5.lan {
+immich.g5.lan, immich.g5.internal {
 	tls internal
 	# Immich runs in a separate compose project; reach via host-published port.
 	reverse_proxy host.docker.internal:2283
 }
 
-grafana.g5.lan {
+grafana.g5.lan, grafana.g5.internal {
 	tls internal
-	# Grafana runs on the Pi; MagicDNS still lands on G5, then we proxy across the LAN.
+	# Grafana runs on the Pi; DNS lands on G5, then we proxy across the LAN.
 	reverse_proxy 192.168.0.104:3000
 }
 
-hubitat.g5.lan {
+hubitat.g5.lan, hubitat.g5.internal {
 	tls internal
 	# Hubitat Elevation hub (separate LAN box).
 	reverse_proxy 192.168.0.61:80
 }
 
-opencode.g5.lan {
+opencode.g5.lan, opencode.g5.internal {
 	tls internal
 	# No basic_auth. EventSource cannot send Authorization; Caddy (or OpenCode)
-	# basic auth leaves the Web UI blank. Access is Tailscale-only (*.g5.lan).
+	# basic auth leaves the Web UI blank. Access via Tailscale (*.g5.lan) or LAN (*.g5.internal).
 	header -Alt-Svc
 	reverse_proxy host.docker.internal:4096 {
 		# Force HTTP/1.1 + unbuffered flush so /global/event SSE stays alive.
